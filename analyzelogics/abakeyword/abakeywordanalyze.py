@@ -4,6 +4,7 @@ import pandas as pd
 def anaylyzefile(uploadfile):
     df_data = pd.read_excel(uploadfile)
     def removedup(x):
+        x=x.replace('+',' ')
         mset=set(x.split(' '))
         words=' '.join(mset)
         return words
