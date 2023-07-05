@@ -25,6 +25,7 @@ status=0
 if email_input:
     # st.write(email_input)
     status,df=check_dup(email_input)
+    st.write(len(df))
     if status==0:
         st.write('邮箱地址未使用过，已加入记录列表')
         st.write(df)
