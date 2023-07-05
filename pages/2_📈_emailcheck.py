@@ -25,7 +25,7 @@ status=0
 if email_input:
     # st.write(email_input)
     status,df=check_dup(email_input)
-    st.write(len(df))
+    # st.write(len(df))
     if status==0:
         st.write('邮箱地址未使用过，已加入记录列表')
         st.write(df)
@@ -40,7 +40,7 @@ if status!=0:
         '选择状态',
         ('未回复','已成交',  '交涉中'))
     if st.button('更改状态提交'):
-        print('fdfdfdfdf')
+        # print('fdfdfdfdf')
         update_status(email_input,status_option)
         st.experimental_rerun()
 
