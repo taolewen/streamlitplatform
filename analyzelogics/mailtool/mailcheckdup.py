@@ -18,7 +18,7 @@ def check_dup(mailaddress,status=0,name='test'):
         sql=f''' insert into email_check (mailaddress,status,name) values ('{mailaddress}','{status}','{name}') '''
         cursor=mysqlconn1.cursor()
         cursor.execute(sql)
-        mysqlconn.commit()
+        mysqlconn1.commit()
         cursor.close()
         mysqlconn1.close()
         return 0,df
@@ -37,7 +37,7 @@ def update_status(mailaddress,status):
 
     cursor = mysqlconn2.cursor()
     cursor.execute(sql)
-    mysqlconn.commit()
+    mysqlconn2.commit()
     cursor.close()
     mysqlconn2.close()
     print('update ok')
