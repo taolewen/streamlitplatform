@@ -28,13 +28,16 @@ def check_dup(mailaddress,status=0,name='test'):
 
 
 def update_status(mailaddress,status):
+
     mysqlconn2 = pymysql.connect(host=st.secrets["mysql"]['host'],
                                  user=st.secrets["mysql"]['user'],
                                  password=st.secrets["mysql"]['password'],
                                  db=st.secrets["mysql"]['database'])
     sql=f'''update email_check set status='{status}' where mailaddress='{mailaddress}' '''
+    print(sql)
     cursor = mysqlconn2.cursor()
     cursor.execute(sql)
     mysqlconn.commit()
     cursor.close()
     mysqlconn2.close()
+    print('update ok')
