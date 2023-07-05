@@ -39,6 +39,7 @@ if status!=0:
         '选择状态',
         ('未回复','已成交',  '交涉中'))
     if st.button('更改状态提交'):
+        print('fdfdfdfdf')
         update_status(email_input,status_option)
         st.experimental_rerun()
 
