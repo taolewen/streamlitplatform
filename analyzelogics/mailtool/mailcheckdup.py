@@ -4,14 +4,20 @@ import pymysql
 # from dbs import mysqlconn
 import streamlit as st
 
-
+def get_data():
+    mysqlconn = pymysql.connect(host=st.secrets["mysql"]['host'],
+                                user=st.secrets["mysql"]['user'],
+                                password=st.secrets["mysql"]['password'],
+                                db=st.secrets["mysql"]['database'])
+    df=pd.read_sql(f'''select mailaddress,status,name from email_check  ''',con=mysqlconn)
+    return df
 def check_dup(mailaddress,status=0,name='test'):
     mysqlconn = pymysql.connect(host=st.secrets["mysql"]['host'],
                                 user=st.secrets["mysql"]['user'],
                                 password=st.secrets["mysql"]['password'],
                                 db=st.secrets["mysql"]['database'])
     df=pd.read_sql(f'''select mailaddress,status,name from email_check where mailaddress='{mailaddress}' ''',con=mysqlconn)
-    print(f'''select mailaddress,status,name from email_check where mailaddress='{mailaddress}' ''')
+    print(f'''select mailaddress,status from email_check where mailaddress='{mailaddress}' ''')
     print(df)
     print(len(df))
     if len(df)==0:
