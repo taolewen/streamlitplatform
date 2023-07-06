@@ -41,16 +41,23 @@ if key == key_input:
                 if status==0:
                     st.write('邮箱地址未使用过，已加入记录列表')
                     st.write(df)
-
+                    if st.button('刷新'):
+                        # print('fdfdfdfdf')
+                        st.experimental_rerun()
                 else:
-                    st.write('邮箱地址已发送过')
+                    # st.write('邮箱地址已发送过')
                     st.write(df)
 
+
             if status!=0:
+                # st.write(df['status'][0])
                 with col2:
                     status_option = st.selectbox(
                     '选择状态',
-                    ('未回复','已成交',  '交涉中'))
+                    [df['status'][0]]+['未回复','已成交',  '交涉中'],
+                    )
+
+
                 if st.button('更改状态提交'):
                     # print('fdfdfdfdf')
                     update_status(email_input,status_option)
