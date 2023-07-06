@@ -57,8 +57,8 @@ if key == key_input:
                     [df['status'][0]]+['未回复','已成交',  '交涉中'],
                     )
 
-
-                if st.button('更改状态提交'):
+                if status_option!=df['status'][0]:
+                # if st.button('更改状态提交'):
                     # print('fdfdfdfdf')
                     update_status(email_input,status_option)
                     st.experimental_rerun()
