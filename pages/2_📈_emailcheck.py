@@ -63,9 +63,12 @@ if key == key_input:
                     update_status(email_input,status_option)
                     st.experimental_rerun()
     with tab2:
-        df=get_data()
+        title = st.text_input('查询邮箱')
+        if title:
+            df=get_data(title)
+        else:
+            df=get_data()
         st.dataframe(df)
-
 
         @st.cache_data
         def convert_df(df):
