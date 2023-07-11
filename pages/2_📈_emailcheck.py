@@ -4,7 +4,7 @@ import time
 import numpy as np
 
 from analyzelogics.abakeyword.abakeywordanalyze import anaylyzefile
-from analyzelogics.mailtool.mailcheckdup import check_dup, update_status, get_data
+from analyzelogics.mailtool.mailcheckdup import check_dup, update_status, get_data, delete_mails, newaddress
 
 st.set_page_config(page_title="email duplicate check", page_icon="📈")
 
@@ -17,7 +17,7 @@ with st.sidebar:
     key_input = st.text_input(
         "请输入key",
         "",
-        key="placeholder0",
+        key="seckey",
     )
 if key == key_input:
     with tab1:
@@ -30,7 +30,7 @@ if key == key_input:
                 email_input=st.text_input(
                     "请输入邮箱",
                     "",
-                    key="placeholder",
+                    key="email_input",
                 )
             status=0
 
@@ -39,10 +39,11 @@ if key == key_input:
                 status,df=check_dup(email_input)
                 # st.write(len(df))
                 if status==0:
-                    st.write('邮箱地址未使用过，已加入记录列表')
+                    st.write('邮箱地址未使用过')
                     st.write(df)
-                    if st.button('刷新'):
+                    if st.button('新增',key=1):
                         # print('fdfdfdfdf')
+                        newaddress(email_input)
                         st.experimental_rerun()
                 else:
                     # st.write('邮箱地址已发送过')
@@ -63,13 +64,17 @@ if key == key_input:
                     update_status(email_input,status_option)
                     st.experimental_rerun()
     with tab2:
-        title = st.text_input('查询邮箱')
-        if title:
-            df=get_data(title)
+
+        querymail = st.text_input('查询邮箱')
+        if querymail:
+            df=get_data(querymail)
         else:
             df=get_data()
-        st.dataframe(df)
-
+        df['选择']=False
+        edited_df=st.experimental_data_editor(df,key='maillist')
+        deleteids=edited_df.loc[edited_df['选择']==True]['id'].tolist()
+        print(deleteids)
+        # st.write(deleteids)
         @st.cache_data
         def convert_df(df):
             # IMPORTANT: Cache the conversion to prevent computation on every rerun
@@ -77,10 +82,22 @@ if key == key_input:
 
 
         csv = convert_df(df)
+        col1_maillist, col2_maillist,col3_maillist = st.columns(3)
 
-        st.download_button(
-            label="Download data as CSV",
-            data=csv,
-            file_name='email_list.csv',
-            mime='text/csv',
-        )
+        with col1_maillist:
+            if st.button('删除',key=2):
+                # print('fdfdfdfdf')
+                delete_mails(deleteids)
+                st.experimental_rerun()
+        with col2_maillist:
+            if st.button('刷新',key=3):
+                # print('fdfdfdfdf')
+                st.experimental_rerun()
+        with col3_maillist:
+            st.download_button(
+                label="Download data as CSV",
+                data=csv,
+                file_name='email_list.csv',
+                mime='text/csv',
+            )
+
