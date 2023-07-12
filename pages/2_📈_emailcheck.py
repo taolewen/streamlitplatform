@@ -71,7 +71,7 @@ if key == key_input:
         else:
             df=get_data()
         df['选择']=False
-        edited_df=st.experimental_data_editor(df,key='maillist')
+        edited_df=st.data_editor(df,key='maillist')
         deleteids=edited_df.loc[edited_df['选择']==True]['id'].tolist()
         print(deleteids)
         # st.write(deleteids)
