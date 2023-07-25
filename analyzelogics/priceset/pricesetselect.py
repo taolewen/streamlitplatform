@@ -21,12 +21,15 @@ def get_area():
     df=pd.read_sql(f'''select area from priceset_base_result group by area''',con=mysqlconn)
     return df['area'].to_list()
 
-def get_country():
+def get_country(area=None):
     mysqlconn = pymysql.connect(host=st.secrets["mysql"]['host'],
                                 user=st.secrets["mysql"]['user'],
                                 password=st.secrets["mysql"]['password'],
                                 db=st.secrets["mysql"]['database'])
-    df=pd.read_sql(f'''select country from priceset_base_result group by country''',con=mysqlconn)
+    df=pd.read_sql(f'''select country from priceset_base_result 
+                        where 1=1
+                    {"" if not area else f"and area = '{area}'"}
+                    group by country''',con=mysqlconn)
     return df['country'].to_list()
 
 def get_month():
@@ -95,7 +98,7 @@ def get_feerate(ratename,platform=None,country=None):
 
                         ''',con=mysqlconn)
     if len(df[ratename].to_list())==0:
-        return ''
+        return 0
     else:
         return (df[ratename].to_list()[0])
 
@@ -107,14 +110,7 @@ def cal_data(platform=None,area=None,country=None,erpsku=None,usesku=None,month=
                                 user=st.secrets["mysql"]['user'],
                                 password=st.secrets["mysql"]['password'],
                                 db=st.secrets["mysql"]['database'])
-    print('yyyyyy>>>>>>>>>>'+f'''                    select erp_sku,usesku,platform,area,country,height,lenth,width,uv,purchaseprice,transinv_fee,invfee invfee_rate,expansion_rate,discount_rate
-                    from priceset_base_result
-                    where 1=1
-                    {"" if not platform else f"and platform = '{platform}'"}
-                    {"" if not area else f"and area = '{area}'"}
-                    {"" if not country else f"and country = '{country}'"}
-                    {"" if not erpsku else f"and erp_sku like '%{erpsku}%'"}
-                    {"" if not usesku else f"and usesku = '%{usesku}%'"}''')
+
     df_base=pd.read_sql(f'''
                     select erp_sku,usesku,platform,area,country,height,lenth,width,uv,purchaseprice,transinv_fee,invfee invfee_rate,expansion_rate,discount_rate
                     from priceset_base_result
