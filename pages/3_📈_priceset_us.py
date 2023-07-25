@@ -87,7 +87,7 @@ with st.sidebar:
             df_s1['数量']=qty
 
 
-        df_s1=st.data_editor(df_s1)
+        df_s1=st.data_editor(df_s1,hide_index=True)
     else:
         df_s=cal_data(platform=platform,area=area,country=country,erpsku=erpsku,usesku=usesku,month=month,touchengmode=touchengmode,isbusy=isbusy,erchengfulfilltype=erchengfulfilltype,erchengmode=erchengmode,
                     invrentrate=float(invrentrate),commissionrate=float(commissionrate),vatrate=float(vatrate),otherrate=float(otherrate),waverate=float(waverate))[['erp_sku']]
@@ -104,7 +104,7 @@ with st.sidebar:
             df_s['广告投放']=ad
             df_s['预计定价']=preprice
             df_s['数量']=qty
-        df_s=st.data_editor(df_s)
+        df_s=st.data_editor(df_s,hide_index=True)
 
 @st.cache_data
 def convert_df(df):
@@ -119,7 +119,7 @@ with tab1:
         df_m['预计定价']=df_m['预计定价'].astype('float64')
         df_m['广告投放']=df_m['广告投放'].astype('float64')
         df_m['前台毛利']=df_m.apply(lambda x:None if x.广告投放==None or x.预计定价==None else
-            ((x.预计定价)-(x.purchaseprice_o+x.transinv_fee_act+x.invfee+x.头程_原币+x.ercheng_act)-(x.rate_combine/100+(x.广告投放)/100)*(x.预计定价))*x.数量
+            round(((x.预计定价)-(x.purchaseprice_o+x.transinv_fee_act+x.invfee+x.头程_原币+x.ercheng_act)-(x.rate_combine/100+(x.广告投放)/100)*(x.预计定价))*x.数量,4)
                                                                         ,axis=1)
         df_m['前台毛利率']=df_m.apply(lambda x:None if x.广告投放==None or x.预计定价==None else
             round(x.前台毛利/(x.预计定价*x.数量),4)*100
@@ -151,8 +151,16 @@ with tab1:
             max_value=500,
             # step=1,
             # format="%d %",
-                )
+                ),
+        "前台毛利": st.column_config.ProgressColumn(
+            "前台毛利",
+            # help="The sales volume in USD",
+            format="%f",
+            min_value=-200,
+            max_value=400,
+        ),
             },
+
             hide_index=True)
 
 
@@ -164,7 +172,7 @@ with tab1:
         df_m['广告投放']=df_m['广告投放'].astype('float64')
 
         df_m['前台毛利']=df_m.apply(lambda x:None if x.广告投放==None or x.预计定价==None else
-            ((x.预计定价)-(x.purchaseprice_o+x.transinv_fee_act+x.invfee+x.头程_原币+x.ercheng_act)-(x.rate_combine/100+(x.广告投放)/100)*(x.预计定价))*x.数量
+            round(((x.预计定价)-(x.purchaseprice_o+x.transinv_fee_act+x.invfee+x.头程_原币+x.ercheng_act)-(x.rate_combine/100+(x.广告投放)/100)*(x.预计定价))*x.数量,4)
                                                                         ,axis=1)
         df_m['前台毛利率']=df_m.apply(lambda x:None if x.广告投放==None or x.预计定价==None else
             round(x.前台毛利/(x.预计定价*x.数量),4)*100
@@ -196,21 +204,28 @@ with tab1:
             max_value=500,
             # step=1,
             # format="%d %",
-                )
+                ),
+        "前台毛利": st.column_config.ProgressColumn(
+            "前台毛利",
+            # help="The sales volume in USD",
+            format="%f",
+            min_value=-200,
+            max_value=400,
+        ),
             },
 
             hide_index=True)
-    if isbatchset:
-        df_chart=df_m[['前台毛利','erp_sku']]
-        df_chart.sort_values('前台毛利',ascending=False,inplace=True)
-        df_chart=df_chart[:30]
-        bar = Bar()
-        bar.add_xaxis(df_chart['erp_sku'].tolist())
-        bar.add_yaxis('前台毛利',df_chart['前台毛利'].tolist())
-        streamlit_echarts.st_pyecharts(
-            bar,
-            theme=ThemeType.DARK
-        )
+    # if isbatchset:
+    #     df_chart=df_m[['前台毛利','erp_sku']]
+    #     df_chart.sort_values('前台毛利',ascending=False,inplace=True)
+    #     df_chart=df_chart[:30]
+    #     bar = Bar()
+    #     bar.add_xaxis(df_chart['erp_sku'].tolist())
+    #     bar.add_yaxis('前台毛利',df_chart['前台毛利'].tolist())
+    #     streamlit_echarts.st_pyecharts(
+    #         bar,
+    #         theme=ThemeType.DARK
+    #     )
 
 with tab2:
     if ispaste:
@@ -220,7 +235,7 @@ with tab2:
         df_m['预计定价']=df_m['预计定价'].astype('float64')
         df_m['广告投放']=df_m['广告投放'].astype('float64')
         df_m['前台毛利']=df_m.apply(lambda x:None if x.广告投放==None or x.预计定价==None else
-            ((x.预计定价)-(x.purchaseprice_o+x.transinv_fee_act+x.invfee+x.头程_原币+x.ercheng_act)-(x.rate_combine/100+(x.广告投放)/100)*(x.预计定价))*x.数量
+            round(((x.预计定价)-(x.purchaseprice_o+x.transinv_fee_act+x.invfee+x.头程_原币+x.ercheng_act)-(x.rate_combine/100+(x.广告投放)/100)*(x.预计定价))*x.数量,4)
                                                                         ,axis=1)
         df_m['前台毛利率']=df_m.apply(lambda x:None if x.广告投放==None or x.预计定价==None else
             round(x.前台毛利/(x.预计定价*x.数量),4)*100
@@ -252,7 +267,14 @@ with tab2:
             max_value=500,
             # step=1,
             # format="%d %",
-                )
+                ),
+        "前台毛利": st.column_config.ProgressColumn(
+            "前台毛利",
+            # help="The sales volume in USD",
+            format="%f",
+            min_value=-200,
+            max_value=400,
+        ),
             },
 
             hide_index=True)
@@ -264,7 +286,7 @@ with tab2:
         df_m['广告投放']=df_m['广告投放'].astype('float64')
 
         df_m['前台毛利']=df_m.apply(lambda x:None if x.广告投放==None or x.预计定价==None else
-            ((x.预计定价)-(x.purchaseprice_o+x.transinv_fee_act+x.invfee+x.头程_原币+x.ercheng_act)-(x.rate_combine/100+(x.广告投放)/100)*(x.预计定价))*x.数量
+            round(((x.预计定价)-(x.purchaseprice_o+x.transinv_fee_act+x.invfee+x.头程_原币+x.ercheng_act)-(x.rate_combine/100+(x.广告投放)/100)*(x.预计定价))*x.数量,4)
                                                                         ,axis=1)
         df_m['前台毛利率']=df_m.apply(lambda x:None if x.广告投放==None or x.预计定价==None else
             round(x.前台毛利/(x.预计定价*x.数量),4)*100
@@ -296,7 +318,14 @@ with tab2:
             max_value=500,
             # step=1,
             # format="%d %",
-                )
+                ),
+        "前台毛利": st.column_config.ProgressColumn(
+            "前台毛利",
+            # help="The sales volume in USD",
+            format="%f",
+            min_value=-200,
+            max_value=400,
+        ),
             },
 
             hide_index=True)
