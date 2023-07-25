@@ -5,7 +5,7 @@ import pymysql
 import streamlit as st
 from numpy import float64
 
-
+@st.cache_data
 def get_platform():
     mysqlconn = pymysql.connect(host=st.secrets["mysql"]['host'],
                                 user=st.secrets["mysql"]['user'],
@@ -13,6 +13,9 @@ def get_platform():
                                 db=st.secrets["mysql"]['database'])
     df=pd.read_sql(f'''select platform from priceset_base_result group by platform''',con=mysqlconn)
     return df['platform'].to_list()
+
+
+@st.cache_data
 def get_area():
     mysqlconn = pymysql.connect(host=st.secrets["mysql"]['host'],
                                 user=st.secrets["mysql"]['user'],
@@ -20,7 +23,7 @@ def get_area():
                                 db=st.secrets["mysql"]['database'])
     df=pd.read_sql(f'''select area from priceset_base_result group by area''',con=mysqlconn)
     return df['area'].to_list()
-
+@st.cache_data
 def get_country(area=None):
     mysqlconn = pymysql.connect(host=st.secrets["mysql"]['host'],
                                 user=st.secrets["mysql"]['user'],
@@ -31,7 +34,7 @@ def get_country(area=None):
                     {"" if not area else f"and area = '{area}'"}
                     group by country''',con=mysqlconn)
     return df['country'].to_list()
-
+@st.cache_data
 def get_month():
     mysqlconn = pymysql.connect(host=st.secrets["mysql"]['host'],
                                 user=st.secrets["mysql"]['user'],
@@ -39,7 +42,7 @@ def get_month():
                                 db=st.secrets["mysql"]['database'])
     df=pd.read_sql(f'''select 月份 month from priceset_toucheng_relate group by 月份''',con=mysqlconn)
     return df['month'].to_list()
-
+@st.cache_data
 def get_touchengmode(area=None):
     mysqlconn = pymysql.connect(host=st.secrets["mysql"]['host'],
                                 user=st.secrets["mysql"]['user'],
@@ -50,7 +53,7 @@ def get_touchengmode(area=None):
                     {"" if not area else f"and 区域 = '{area}'"}
                     group by 模式''',con=mysqlconn)
     return df['模式'].to_list()
-
+@st.cache_data
 def get_erchengmode(platform=None,area=None,erchengfulfilltype=None):
     mysqlconn = pymysql.connect(host=st.secrets["mysql"]['host'],
                                 user=st.secrets["mysql"]['user'],
@@ -81,6 +84,8 @@ def get_erchengmode(platform=None,area=None,erchengfulfilltype=None):
             ''',con=mysqlconn)
     return df['ftype'].to_list()
 
+
+@st.cache_data
 def get_feerate(ratename,platform=None,country=None):
     mysqlconn = pymysql.connect(host=st.secrets["mysql"]['host'],
                                 user=st.secrets["mysql"]['user'],
@@ -102,7 +107,7 @@ def get_feerate(ratename,platform=None,country=None):
     else:
         return (df[ratename].to_list()[0])
 
-                                                                                                                    #fbafbm
+@st.cache_data
 def cal_data(platform=None,area=None,country=None,erpsku=None,usesku=None,month=None,touchengmode=None,isbusy=None,erchengfulfilltype=None,erchengmode=None,
             invrentrate=None,commissionrate=None,vatrate=None,otherrate=None,waverate=None
              ):
