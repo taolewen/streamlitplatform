@@ -7,42 +7,85 @@ from pyecharts import options as opts
 from pyecharts.globals import ThemeType
 from analyzelogics.priceset.pricesetselect import get_platform, get_area, get_country, get_month, get_touchengmode, \
     get_erchengmode, get_feerate, cal_data
+from analyzelogics.priceset.tempupdate import savetemp2db, get_user, get_temp, updatetempindb, get_one_temp
 from dbs import  mysqlconn
+from streamlit_modal import Modal
 
 
-# with st.sidebar:
-#     platform=st.selectbox('平台',get_platform())
-#     area=st.selectbox('区域',get_area())
-#     country=st.selectbox('国家',get_country())
-#     month=st.selectbox('月份',get_month())
-#     touchengmode=st.selectbox('头程模式',get_touchengmode(area))
-#     erchengfulfilltype=st.selectbox('二程发货方式',['fba','fbm'])
-#     erchengmode=st.selectbox('二程类型',get_erchengmode(platform,area,erchengfulfilltype))
-#     isbusy=st.selectbox('运费方式',['高峰','非高峰'])
-#     isbusydict={'高峰':'busy','非高峰':'notbusy'}
-#     isbusy1=isbusydict[isbusy]
-col1, col2,col3,col4= st.columns(4)
+if "username" not in st.session_state:
+    st.session_state["username"] = None
+if "tempname" not in st.session_state:
+    st.session_state["tempname"] = None
+if "platform" not in st.session_state:
+    st.session_state["platform"] = None
+if "area" not in st.session_state:
+    st.session_state["area"] = None
+if "country" not in st.session_state:
+    st.session_state["country"] = None
+if "month" not in st.session_state:
+    st.session_state["month"] = None
+if "touchengmode" not in st.session_state:
+    st.session_state["touchengmode"] = None
+if "erchengfulfilltype" not in st.session_state:
+    st.session_state["erchengfulfilltype"] = None
+if "erchengmode" not in st.session_state:
+    st.session_state["erchengmode"] = None
+if "isbusy" not in st.session_state:
+    st.session_state["isbusy"] = None
+
+
+
+col1, col2= st.columns(2)
 with col1:
-    platform=st.selectbox('平台',get_platform())
-    # area=st.selectbox('区域',get_area())
-    area=st.selectbox('区域',['US'])
-
-
+    st.session_state["username"]=st.selectbox('用户',get_user())
 with col2:
-    country=st.selectbox('国家',get_country(area))
-    month=st.selectbox('月份',get_month())
+    st.session_state["tempname"]=st.selectbox('模板',get_temp(st.session_state["username"]))
+if st.session_state["username"] and st.session_state["tempname"]:
+
+    tempdict=get_one_temp(st.session_state["username"],st.session_state["tempname"])
+    st.session_state["platform"] = tempdict['platform']
+    st.session_state["area"] = tempdict['area']
+    st.session_state["country"] = tempdict['country']
+    st.session_state["month"] = tempdict['month']
+    st.session_state["touchengmode"] = tempdict['touchengmode']
+    st.session_state["erchengfulfilltype"] = tempdict['erchengfulfilltype']
+    st.session_state["erchengmode"] = tempdict['erchengmode']
+    st.session_state["isbusy"] = tempdict['isbusy1']
 
 
-with col3:
-    touchengmode=st.selectbox('头程模式',get_touchengmode(area))
-    erchengfulfilltype=st.selectbox('二程发货方式',['fba','fbm'])
-
-
-with col4:
-    erchengmode=st.selectbox('二程类型',get_erchengmode(platform,area,erchengfulfilltype))
-    isbusy=st.selectbox('运费方式',['高峰','非高峰'])
-    isbusydict={'高峰':'busy','非高峰':'notbusy'}
-    isbusy1=isbusydict[isbusy]
+    col1, col2,col3,col4= st.columns(4)
+    with col1:
+        platform=st.selectbox('平台', [st.session_state["platform"]]+get_platform())
+        area=st.selectbox('区域',[st.session_state["area"]]+get_area())
+        # area=st.selectbox('区域',['US'])
+    with col2:
+        country=st.selectbox('国家',[st.session_state["country"]]+get_country(area))
+        month=st.selectbox('月份',[st.session_state["month"]]+get_month())
+    with col3:
+        touchengmode=st.selectbox('头程模式',[st.session_state["touchengmode"]]+get_touchengmode(area))
+        erchengfulfilltype=st.selectbox('二程发货方式',[st.session_state["erchengfulfilltype"]]+['fba','fbm'])
+    with col4:
+        erchengmode=st.selectbox('二程类型',[st.session_state["erchengmode"]]+get_erchengmode(platform,area,erchengfulfilltype))
+        isbusy=st.selectbox('运费方式',[st.session_state["isbusy"]]+['高峰','非高峰'])
+        isbusydict={'高峰':'busy','非高峰':'notbusy'}
+        isbusy1=isbusydict[isbusy]
+else:
+    col1, col2,col3,col4= st.columns(4)
+    with col1:
+        platform=st.selectbox('平台', get_platform())
+        area=st.selectbox('区域',get_area())
+        # area=st.selectbox('区域',['US'])
+    with col2:
+        country=st.selectbox('国家',get_country(area))
+        month=st.selectbox('月份',get_month())
+    with col3:
+        touchengmode=st.selectbox('头程模式',get_touchengmode(area))
+        erchengfulfilltype=st.selectbox('二程发货方式',['fba','fbm'])
+    with col4:
+        erchengmode=st.selectbox('二程类型',get_erchengmode(platform,area,erchengfulfilltype))
+        isbusy=st.selectbox('运费方式',['高峰','非高峰'])
+        isbusydict={'高峰':'busy','非高峰':'notbusy'}
+        isbusy1=isbusydict[isbusy]
 
 col1, col2= st.columns(2)
 with col1:
@@ -50,6 +93,16 @@ with col1:
     erpsku=st.text_input('erpsku')
 with col2:
     usesku=st.text_input('使用sku')
+
+# my_modal = Modal(title="", key="modal_key", max_width=400)
+
+if "savetemp" not in st.session_state:
+    st.session_state["savetemp"] = False
+
+def save_btn_click():
+    st.session_state["savetemp"] = True
+def cancel_btn_click():
+    st.session_state["savetemp"] = False
 
 col1, col2, col3 = st.columns(3)
 with st.container():
@@ -67,6 +120,48 @@ with st.container():
         # if st.button('Rerun', key=1):
         #     # print('fdfdfdfdf')
         #     st.experimental_rerun()
+        st.write('')
+        if not st.session_state['savetemp']:
+            st.button('保存模板' if not st.session_state['tempname'] else '更新模板',on_click=save_btn_click)
+        else:
+            if st.button("取消", on_click=cancel_btn_click):
+                st.experimental_rerun()
+
+    if st.session_state['savetemp']:
+        # 定义一个确定按钮，注意key值为指定的session_state，on_click调用回调函数改session_state的值
+        if st.session_state['username'] and st.session_state['tempname']:
+            # print(st.session_state['username'] , st.session_state['tempname'])
+            updatetempindb(platform, area, country, month, touchengmode, erchengfulfilltype, erchengmode,
+                                isbusy1, st.session_state["username"], st.session_state["tempname"])
+            st.session_state["savetemp"] = False
+            st.experimental_rerun()
+        else:
+            with st.form("temp_form"):
+                st.markdown("""保存模板
+                               """)  # 这里的t[1]为用例名称
+                if not st.session_state["username"]:
+                    st.session_state["username"]=st.text_input('username')
+
+
+                st.session_state["tempname"]=st.text_input('模板名')
+
+
+                submitted =st.form_submit_button("保存")
+                if submitted :
+                    savetemp2db(platform, area, country, month, touchengmode, erchengfulfilltype, erchengmode,
+                                isbusy1, st.session_state["username"], st.session_state["tempname"])
+                    st.session_state["savetemp"] = False  # 恢复session_state为False
+
+                    st.experimental_rerun()
+                # st.button("保存", key="savetemp", on_click=save_btn_click)
+
+
+# if st.session_state["savetemp"]:
+#     savetemp2db(platform,area,country,month,touchengmode,erchengfulfilltype,erchengmode,isbusy1,username,tempname)
+#
+#     st.session_state["savetemp"] = False
+
+
 tab1,tab2=st.tabs(['定价表','明细'])
 
 with st.sidebar:
@@ -86,8 +181,17 @@ with st.sidebar:
             df_s1['预计定价']=preprice
             df_s1['数量']=qty
 
+        df_s1 = st.data_editor(df_s1, hide_index=True)
 
-        df_s1=st.data_editor(df_s1,hide_index=True)
+        # if st.button('清空', key=1):
+        #     df_s1['erp_sku']=''
+        #     df_s1['广告投放']=None
+        #     df_s1['预计定价']=None
+        #     df_s1['数量']=1
+        # else:
+        #     df_s1 = st.data_editor(df_s1, hide_index=True)
+
+
     else:
         df_s=cal_data(platform=platform,area=area,country=country,erpsku=erpsku,usesku=usesku,month=month,touchengmode=touchengmode,isbusy=isbusy,erchengfulfilltype=erchengfulfilltype,erchengmode=erchengmode,
                     invrentrate=float(invrentrate),commissionrate=float(commissionrate),vatrate=float(vatrate),otherrate=float(otherrate),waverate=float(waverate))[['erp_sku']]
