@@ -1,3 +1,5 @@
+import datetime
+
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -210,10 +212,7 @@ with st.sidebar:
             df_s['数量']=qty
         df_s=st.data_editor(df_s,hide_index=True)
 
-@st.cache_data
-def convert_df(df):
-    # IMPORTANT: Cache the conversion to prevent computation on every rerun
-    return df.to_csv().encode('utf-8')
+
 
 with tab1:
     if ispaste:
@@ -404,8 +403,8 @@ with tab2:
         df_m['10%利润价'] = df_m.apply(lambda x: None if x.广告投放 == None or x.预计定价 == None else
         (x.purchaseprice_o+x.transinv_fee_act+x.invfee+x.头程_原币+x.ercheng_act)/(1-(0.1+x.广告投放/100+x.rate_combine/100))
                                    , axis=1)
-        df_m.rename(columns={'usesku':'使用sku','platform':'平台','area':'区域','country':'国家','height':'高','lenth':'长','width':'宽','uv':'体积','expansion_rate':'膨胀系数','exchange_rate':'汇率','purchaseprice':'采购价','purchaseprice_o':'采购价_原币','transinv_fee':'转仓费','invfee_rate':'仓租费率','invfee':'仓租',
-                             'ercheng':'二程','rate_combine':'合并费率'},inplace=True)
+        df_m.rename(columns={'usesku':'使用sku','platform':'平台','area':'区域','country':'国家','height':'高','lenth':'长','width':'宽','uv':'体积','expansion_rate':'膨胀系数','discount_rate':'折扣比例','exchange_rate':'汇率','purchaseprice':'采购价','purchaseprice_o':'采购价_原币','transinv_fee':'转仓费','transinv_fee_act':'转仓费_实际','invfee_rate':'仓租费率','invfee':'仓租',
+                             'ercheng':'二程','ercheng_act':'二程_实际','rate_combine':'合并费率'},inplace=True)
         # df_m=df_m[['erp_sku','使用sku','平台','区域','国家','广告投放','预计定价','数量','前台毛利','前台毛利率','0%利润价','5%利润价','10%利润价']]
         st.dataframe(df_m,
                      column_config={
@@ -433,10 +432,68 @@ with tab2:
             },
 
             hide_index=True)
-csv = convert_df(df_m)
-st.download_button(
-    label="Download data as CSV",
-    data=csv,
-    file_name='定价表.csv',
-    mime='text/csv',
-)
+st.session_state['excelfilepath']=None
+st.session_state['excelfilename']=None
+def outputexcel(df_m,username,tempname):
+    df_out=df_m
+    # df_out.to_excel('df_out.xlsx')
+    filename=f'''{username}_{tempname}.xlsx'''
+    filepath=f'files\\{filename}'
+    writer = pd.ExcelWriter(filepath, engine='openpyxl')
+    df_out.to_excel(writer, sheet_name='Sheet1', index=False)
+    workbook = writer.book
+    worksheet = writer.sheets['Sheet1']
+
+    # maxlen=len(df_m)
+    # print('maxlen>>>>>'+str(maxlen))
+    # for i in (2,maxlen+1):
+    #     worksheet[f'ab{i}'] = f'=(z{i}-(p{i}+q{i}+r{i}+u{i}+w{i})-(x{i}/100+y{i}/100))*aa{i}'
+    #     worksheet[f'ac{i}'] = f'=ab{i}/(z{i}*aa{i})'
+    #     worksheet[f'ad{i}'] = f'=(p{i}+q{i}+r{i}+u{i}+w{i})/(1-(y{i}/100+x{i}/100))'
+    #     worksheet[f'ae{i}'] = f'=(p{i}+q{i}+r{i}+u{i}+w{i})/(1-(0.05+y{i}/100+x{i}/100))'
+    #     worksheet[f'af{i}'] = f'=(p{i}+q{i}+r{i}+u{i}+w{i})/(1-(0.1+y{i}/100+x{i}/100))'
+
+    worksheet[f'ab2'] = f'=(z2-(p2+q2+r2+u2+w2)-(x2/100+y2/100))*aa2'
+    worksheet[f'ac2'] = f'=ab2/(z2*aa2)'
+    worksheet[f'ad2'] = f'=(p2+q2+r2+u2+w2)/(1-(y2/100+x2/100))'
+    worksheet[f'ae2'] = f'=(p2+q2+r2+u2+w2)/(1-(0.05+y2/100+x2/100))'
+    worksheet[f'af2'] = f'=(p2+q2+r2+u2+w2)/(1-(0.1+y2/100+x2/100))'
+    # 保存 Excel 文件
+    writer._save()
+    st.session_state['excelfilepath']=filepath
+    st.session_state['excelfilename'] = filename
+
+st.session_state['fileok']=False
+
+
+# def setfilestatusok_btn_click():
+#     st.session_state['fileok']=True
+# def setfilestatusnotok_btn_click():
+#     st.session_state['fileok']=False
+col1, col2,col3,col4= st.columns(4)
+with col1:
+    if st.button('生成excel'):
+
+        outputexcel(df_m,st.session_state['username'],st.session_state['tempname'])
+        st.session_state['fileok']=True
+with col2:
+    if st.session_state['fileok']:
+        with open(st.session_state['excelfilepath'], "rb") as file:
+            btn = st.download_button(
+                label="下载excel",
+                data=file,
+                file_name=st.session_state['excelfilename'],
+                mime="application/vnd.ms-excel",
+            )
+
+# @st.cache_data
+# def convert_df(df):
+#     # IMPORTANT: Cache the conversion to prevent computation on every rerun
+#     return df.to_csv().encode('utf-8')
+# csv = convert_df(df_m)
+# st.download_button(
+#     label="Download data as CSV",
+#     data=csv,
+#     file_name='定价表.csv',
+#     mime='text/csv',
+# )
