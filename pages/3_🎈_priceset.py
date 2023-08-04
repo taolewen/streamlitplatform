@@ -453,7 +453,7 @@ def outputexcel(df_m,username,tempname):
     #     worksheet[f'ae{i}'] = f'=(p{i}+q{i}+r{i}+u{i}+w{i})/(1-(0.05+y{i}/100+x{i}/100))'
     #     worksheet[f'af{i}'] = f'=(p{i}+q{i}+r{i}+u{i}+w{i})/(1-(0.1+y{i}/100+x{i}/100))'
 
-    worksheet[f'ab2'] = f'=(z2-(p2+q2+r2+u2+w2)-(x2/100+y2/100))*aa2'
+    worksheet[f'ab2'] = f'=(z2-(p2+q2+r2+u2+w2)-(x2/100+y2/100)*z2)*aa2'
     worksheet[f'ac2'] = f'=ab2/(z2*aa2)'
     worksheet[f'ad2'] = f'=(p2+q2+r2+u2+w2)/(1-(y2/100+x2/100))'
     worksheet[f'ae2'] = f'=(p2+q2+r2+u2+w2)/(1-(0.05+y2/100+x2/100))'
