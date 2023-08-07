@@ -54,7 +54,10 @@ def selectbatch(attrjson):
         str=f"{d['createdate']}_{filename}_{d['area']}_{d['country']}_{d['store']}_{d['week']}_{d['batchid']}"
         # print(str)
         strlist.append(str)
-    return strlist
+    df=df.drop('path', axis=1)
+    df['delete']=False
+    df=df[['delete','area','country','qijian','week','store','createdate','reporttype','batchid']]
+    return df
 def deletebatch(batchid):
     try:
         conn = pymysql.connect(host='124.71.174.53',
@@ -88,8 +91,10 @@ def dealsinglefile(path, attrjson):
             "Clicks": "Clicks",
             "Avg CPC": "Avg_CPC",
             "Actual Cost (€)": "Actual_Cost_€",
+            "Actual Cost (竄ｬ)": "Actual_Cost_€",
             "freeCreditCost": "freeCreditCost",
-            "free Credit Cost": "freeCreditCost"
+            "free Credit Cost": "freeCreditCost",
+            "Free Credit Cost": "freeCreditCost"
 
         }, inplace=True)
         df['area'] = attrjson['area']

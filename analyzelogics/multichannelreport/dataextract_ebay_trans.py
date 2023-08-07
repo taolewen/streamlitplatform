@@ -55,7 +55,10 @@ def selectbatch(attrjson):
         str=f"{d['createdate']}_{filename}_{d['area']}_{d['country']}_{d['store']}_{d['week']}_{d['batchid']}"
         # print(str)
         strlist.append(str)
-    return strlist
+    df=df.drop('path', axis=1)
+    df['delete']=False
+    df=df[['delete','area','country','qijian','week','store','createdate','reporttype','batchid']]
+    return df
 def deletebatch(batchid):
     try:
         conn = pymysql.connect(host='124.71.174.53',
@@ -77,7 +80,7 @@ def dealsinglefile(path, attrjson):
 
     try:
         # df = pd.read_csv(path,skiprows=11)
-        df = pd.read_csv(path)
+        df = pd.read_csv(path,skiprows=11)
 
     except:
         try:
@@ -91,12 +94,50 @@ def dealsinglefile(path, attrjson):
             return 2, traceback.format_exc()
         # df = pd.read_csv(path ,skiprows=11, encoding=f_charinfo["encoding"])
 
-        df = pd.read_csv(path , encoding=f_charinfo["encoding"])
+        df = pd.read_csv(path , encoding=f_charinfo["encoding"],skiprows=11)
         print(df)
 
     try:
         batchid=getuid()
+        df.rename(columns={
+            "Transaction creation date": "交易创建日期",
+            "Type": "类型",
+            "Order number": "订单编号",
+            "Legacy order ID": "旧订单编号",
+            "Buyer username": "买家用户名",
+            "Buyer name": "买家姓名",
+            "Post to city": "收货人所在县/市",
+            "Post to province/region/state": "运送至省/地区/州",
+            "Post to postcode": "收货人邮政编码",
+            "Post to country": "收货人所在国家/地区",
+            "Net amount": "净额",
+            "Payout currency": "发款货币",
+            "Payout date": "发款日期",
+            "Payout ID": "发款编号",
+            "Payout method": "收款方式",
+            "Payout status": "发款状态",
+            "Reason for hold": "冻结原因",
+            "Item ID": "物品编号",
+            "Transaction ID": "交易编号",
+            "Item title": "物品标题",
+            "Custom label": "自定义标签",
+            "Quantity": "数量",
+            "Item subtotal": "物品小计",
+            "Postage and packaging": "运费与处理费",
+            "Seller collected tax": "卖家收取的税费",
+            "eBay collected tax": "eBay 收取的税费",
+            "Final value fee – fixed": "成交费 — 固定",
+            "Final value fee – variable": "成交费 — 因品类而异",
+            "Very high 'item not as described' fee": "“物品与描述不符”指数非常高的费用",
+            "Below standard performance fee": "表现不合格的费用",
+            "International fee": "跨国交易费用",
+            "Gross transaction amount": "交易总金额",
+            "Transaction currency": "交易货币",
+            "Exchange rate": "汇率",
+            "Reference ID": "参考编号",
+            "Description": "描述"
 
+        }, inplace=True)
         # df = pd.read_csv(path,skiprows=11)
         df.rename(columns={
             "收货人所在县/市": "收货人所在县市",
@@ -159,6 +200,8 @@ def dealsinglefile(path, attrjson):
                  "batchid"
 
                  ]]
+        df['数量']=df.apply(lambda x:1 if x.类型=='退款' else x.数量,axis=1)
+        df['物品小计']=df.apply(lambda x:x.交易总金额 if x.类型=='退款' else x.物品小计,axis=1)
 
         df.to_sql('newchannel_ebay_trans', con=engine, if_exists='append', index=False, index_label=False)
         updatebatch(attrjson,batchid,path)

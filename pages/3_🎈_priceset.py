@@ -438,7 +438,7 @@ def outputexcel(df_m,username,tempname):
     df_out=df_m
     # df_out.to_excel('df_out.xlsx')
     filename=f'''{username}_{tempname}.xlsx'''
-    filepath=f'files\\{filename}'
+    filepath=f'tempfiles\\priceset\\{filename}'
     writer = pd.ExcelWriter(filepath, engine='openpyxl')
     df_out.to_excel(writer, sheet_name='Sheet1', index=False)
     workbook = writer.book

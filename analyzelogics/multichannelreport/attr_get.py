@@ -3,8 +3,8 @@ def get_option(channel):
         'Wayfair':{
             'reporttype':['已发货订单','广告','付款','物流发票','CG发货订单'],
             'country':[],
-            'area': ['US','EU'],
-            'store': ['WF-EU-2','WF-EU-5','WF-US-1','WF-US-2','WF-US-5'],
+            'area': ['US','EU','CA'],
+            'store': ['WF-EU-2','WF-EU-5','WF-US-1','WF-US-2','WF-US-5','WF-CA-1'],
             'week': [],
             'qijian': []
 
