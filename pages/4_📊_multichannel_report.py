@@ -154,13 +154,13 @@ with tab1:
                     s, m = dataextract_shopify_ad2.dealsinglefile(uploadfilepath, d)
             print(s,m)
             delete_uploaded_file(uploadfilepath)
-            # if s == 1:
-            #     Multiline_txt = values['multiline'] + '\n' + str('导入成功---' + str(d) + '---' + values['input'])
-            #     window.Element('multiline').Update(Multiline_txt)
-            #
-            # elif s == 2:
-            #     Multiline_txt = values['multiline'] + '\n' + str('导入失败' + '---' + m)
-            #     window.Element('multiline').Update(Multiline_txt)
+            if s == 1:
+
+                st.success(str('导入成功---' + str(d)),icon="✅")
+
+            elif s == 2:
+
+                st.error(str('导入失败' + '---' + m), icon="🚨")
 with tab2:
     d = {
         'area': st.session_state['area'],

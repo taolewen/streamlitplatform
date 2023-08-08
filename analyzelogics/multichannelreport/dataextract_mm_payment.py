@@ -81,32 +81,39 @@ def dealsinglefile(path,attrjson):
     try:
         batchid=getuid()
         name=['item_create_time',
-'customer_last_name',
-'customer_first_name',
-'item_ref',
-'item_type',
-'order_product_id',
-'product_name',
-'quantity',
-'installment',
-'amount_vat_incl',
-'amount_vat_excl',
-'products_total',
-'shipping_total',
-'commission_vat_excl',
-'tva_comission',
-'commission_vat_incl',
-'net_amount',
-'coupons',
-'currency',
-'bank_transfer_ref',
-'transfer_date',
-'vat_liability',
-'vat_amount',
-'invoice_issuer',
-'shop']
+            'customer_last_name',
+            'customer_first_name',
+            'item_ref',
+            'item_type',
+            'order_product_id',
+            'product_name',
+            'quantity',
+            'installment',
+            'amount_vat_incl',
+            'amount_vat_excl',
+            'products_total',
+            'shipping_total',
+            'commission_vat_excl',
+            'tva_comission',
+            'commission_vat_incl',
+            'net_amount',
+            'coupons',
+            'currency',
+            'bank_transfer_ref',
+            'transfer_date',
+            'vat_liability',
+            'vat_amount',
+            'invoice_issuer',
+            'invoice_reference',
+              'invoice_number',
+              'shop'
+
+              ]
         # df=pd.read_excel(path,sheet_name='soges MF-退款')
-        df = pd.read_excel(path, names = name)
+        # df = pd.read_excel(path, names = name)
+        df = pd.read_csv(path, names = name,skiprows=1)
+
+
         # df=df.iloc[:,0:21]
         # df.to_csv('fdfd0.csv')
         # print(df)

@@ -32,7 +32,7 @@ def updatebatch(attrjson,batchid,path):
                            database='csbd')
     cursor = conn.cursor()
     sql = f"""insert newchannel_batchinfo (batchid,reporttype,path,area,country,week,store,qijian) values 
-    ('{batchid}','{reporttype}','{path}','{attrjson['area'].upper()}','{(attrjson['country']).upper()}',
+    ('{batchid}','{reporttype}','{path}','{attrjson['area'].upper()}','{(attrjson['country']).upper() if attrjson['country'] else ''}',
     '{attrjson['week']}','{attrjson['store'].upper()}','{attrjson['qijian']}')"""
     cursor.execute(sql)
     conn.commit()
