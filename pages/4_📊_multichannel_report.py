@@ -73,7 +73,7 @@ tab1,tab2=st.tabs(['导入','记录'])
 with tab1:
     def save_uploaded_file(uploadedfile):
 
-        path=os.path.join("tempfiles\\multichannelreport",str(uuid.uuid4())+'_'+uploadedfile.name)
+        path=os.path.join("tempfiles",os.path.join("multichannelreport",str(uuid.uuid4())+'_'+uploadedfile.name))
         with open(path,"wb") as f:
             f.write(uploadedfile.getbuffer())
         print(f'save file {path}')
