@@ -156,11 +156,11 @@ with tab1:
             delete_uploaded_file(uploadfilepath)
             if s == 1:
 
-                st.success(str('导入成功---' + str(d)),icon="✅")
+                st.success(str('导入成功🎉💯🎉---' + str(d)),icon="✅")
 
             elif s == 2:
 
-                st.error(str('导入失败' + '---' + m), icon="🚨")
+                st.error(str('导入失败🚨🚨🚨' + '---' + m), icon="🚨")
 with tab2:
     d = {
         'area': st.session_state['area'],
