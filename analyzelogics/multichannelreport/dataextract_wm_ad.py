@@ -84,7 +84,11 @@ def dealsinglefile(path,attrjson):
         batchid=getuid()
 
         df=pd.read_csv(path)
-        df.rename(columns={"Units Sold":"Units_Sold","Conversion Rate":"Conversion_Rate","Total Attr. Sales Revenue":"Total_Attr_Sales_Revenue","Ad Spend":"Ad_Spend"},inplace=True)
+        df.rename(columns={"Units Sold":"Units_Sold",
+                           "Conversion Rate":"Conversion_Rate",
+                           "Conversion Rate (Units Sold Based)":"Conversion_Rate",
+                           "Total Attr. Sales Revenue":"Total_Attr_Sales_Revenue",
+                           "Ad Spend":"Ad_Spend"},inplace=True)
         df['area'] = attrjson['area']
         df['country'] = attrjson['country']
         df['store'] = attrjson['store']

@@ -1,3 +1,4 @@
+import json
 import os
 import uuid
 
@@ -26,7 +27,8 @@ if "week" not in st.session_state:
     st.session_state["week"] = None
 if "qijian" not in st.session_state:
     st.session_state["qijian"] = None
-
+if "addcoldict" not in st.session_state:
+    st.session_state["addcoldict"] = None
 col1,col2=st.columns(2)
 with col1:
     # st.session_state["week"]=st.selectbox('week',get_option(st.session_state["channel"])['week'])
@@ -60,16 +62,27 @@ with col1:
 
 with col2:
     st.session_state["reporttype"]=st.selectbox('报表类型',get_option(st.session_state["channel"])['reporttype'])
-
+    st.write('')
 with col3:
     st.session_state["area"]=st.selectbox('Area',get_option(st.session_state["channel"])['area'])
-
 
 with col4:
     st.session_state["country"]=st.selectbox('country',get_option(st.session_state["channel"])['country'])
 
-tab1,tab2=st.tabs(['导入','记录'])
+def clearjson_btn_click():
+    st.session_state["addcoldict"] = None
+if st.checkbox('添加额外字段',on_change=clearjson_btn_click):
+    try:
+        addcoljson=st.text_input('示例：{"store":"XXXX","xxxxxx":"xxxxx"}',placeholder='{"store":"XXXX","xxxxxx":"xxxxx"}')
+        if addcoljson:
+            st.session_state['addcoldict']=json.loads(addcoljson)
+            for key in st.session_state['addcoldict'].keys():
+                st.write(f'''添加字段 {key}=>{st.session_state['addcoldict'][key]}''')
+    except:
+        st.error(str('请输入符合示例格式的字符串🚨🚨🚨' + '--->' + '{"store":"MM-2-MM","xxxxxx":"xxxxx"}'), icon="🚨")
 
+# st.write(st.session_state['addcoldict'])
+tab1,tab2=st.tabs(['导入','记录'])
 with tab1:
     def save_uploaded_file(uploadedfile):
 
@@ -98,7 +111,8 @@ with tab1:
             'country':st.session_state['country'],
             'store':st.session_state['store'],
             'week':st.session_state['week'],
-            'qijian':st.session_state['qijian']
+            'qijian':st.session_state['qijian'],
+            'addcoldict':st.session_state['addcoldict']
             # 'importdate':datetime.now().strftime('%Y-%m-%d')
             }
             if st.session_state['channel'] == 'Wayfair':

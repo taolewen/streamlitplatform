@@ -105,14 +105,12 @@ def dealsinglefile(path,attrjson):
             'vat_amount',
             'invoice_issuer',
             'invoice_reference',
-              'invoice_number',
-              'shop'
-
+              'invoice_number'
               ]
         # df=pd.read_excel(path,sheet_name='soges MF-退款')
         # df = pd.read_excel(path, names = name)
         df = pd.read_csv(path, names = name,skiprows=1)
-
+        df['shop']=attrjson['addcoldict'].get('shop')
 
         # df=df.iloc[:,0:21]
         # df.to_csv('fdfd0.csv')
