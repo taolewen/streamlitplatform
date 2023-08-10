@@ -32,11 +32,13 @@ def get_temp(username):
                                 db=st.secrets["mysql"]['database'])
     df=pd.read_sql(f'''select tempname from priceset_temp where username='{username}' group by tempname''',con=mysqlconn)
     return ['']+df['tempname'].to_list()
-def savetemp2db(platform,area,country,month,touchengmode,erchengfulfilltype,erchengmode,isbusy1,username,tempname):
+def savetemp2db(platform,area,country,month,touchengmode,erchengfulfilltype,erchengmode,isbusy,username,tempname):
     mysqlconn = pymysql.connect(host=st.secrets["mysql"]['host'],
                                 user=st.secrets["mysql"]['user'],
                                 password=st.secrets["mysql"]['password'],
                                 db=st.secrets["mysql"]['database'])
+    isbusydict = {'高峰': 'busy', '非高峰': 'notbusy'}
+    isbusy1 = isbusydict[isbusy]
     sql=f'''insert into priceset_temp (platform,area,country,month,touchengmode,erchengfulfilltype,erchengmode,isbusy ,username,tempname)
             values ('{platform}','{area}','{country}','{month}','{touchengmode}','{erchengfulfilltype}','{erchengmode}','{isbusy1}','{username}','{tempname}')
             
@@ -48,12 +50,13 @@ def savetemp2db(platform,area,country,month,touchengmode,erchengfulfilltype,erch
     mysqlconn.close()
 
 
-def updatetempindb(platform,area,country,month,touchengmode,erchengfulfilltype,erchengmode,isbusy1,username,tempname):
+def updatetempindb(platform,area,country,month,touchengmode,erchengfulfilltype,erchengmode,isbusy,username,tempname):
     mysqlconn = pymysql.connect(host=st.secrets["mysql"]['host'],
                                 user=st.secrets["mysql"]['user'],
                                 password=st.secrets["mysql"]['password'],
                                 db=st.secrets["mysql"]['database'])
-
+    isbusydict = {'高峰': 'busy', '非高峰': 'notbusy'}
+    isbusy1 = isbusydict[isbusy]
     sql=f'''update priceset_temp set platform='{platform}',area='{area}',country='{country}',month='{month}',touchengmode='{touchengmode}',
     erchengfulfilltype='{erchengfulfilltype}',erchengmode='{erchengmode}',isbusy='{isbusy1}'  where username='{username}' and tempname='{tempname}' '''
     cursor = mysqlconn.cursor()

@@ -111,6 +111,8 @@ def get_feerate(ratename,platform=None,country=None):
 def cal_data(platform=None,area=None,country=None,erpsku=None,usesku=None,month=None,touchengmode=None,isbusy=None,erchengfulfilltype=None,erchengmode=None,
             invrentrate=None,commissionrate=None,vatrate=None,otherrate=None,waverate=None
              ):
+    isbusydict = {'高峰': 'busy', '非高峰': 'notbusy'}
+    isbusy1 = isbusydict[isbusy]
     mysqlconn = pymysql.connect(host=st.secrets["mysql"]['host'],
                                 user=st.secrets["mysql"]['user'],
                                 password=st.secrets["mysql"]['password'],
@@ -171,7 +173,7 @@ def cal_data(platform=None,area=None,country=None,erpsku=None,usesku=None,month=
     df_ercheng=pd.read_sql(f'''
                                 select erp_sku,ec ercheng from 
                                 (
-                                SELECT 'fba' ectype,erp_sku,platform,area,country,concat('fba_',ftype) ftype,(case when '{isbusy}' ='notbusy' then erchengfee_total_notbusy else erchengfee_total_busy end) ec FROM `priceset_fba_result`
+                                SELECT 'fba' ectype,erp_sku,platform,area,country,concat('fba_',ftype) ftype,(case when '{isbusy1}' ='notbusy' then erchengfee_total_notbusy else erchengfee_total_busy end) ec FROM `priceset_fba_result`
                                 ) a 
                                 where ectype='{erchengfulfilltype}'
                                 {"" if not platform else f"and platform = '{platform}'"}

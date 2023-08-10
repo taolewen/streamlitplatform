@@ -33,7 +33,7 @@ if "erchengfulfilltype" not in st.session_state:
 if "erchengmode" not in st.session_state:
     st.session_state["erchengmode"] = None
 if "isbusy" not in st.session_state:
-    st.session_state["isbusy"] = None
+    st.session_state["isbusy_cn"] = None
 
 
 
@@ -52,7 +52,7 @@ if st.session_state["username"] and st.session_state["tempname"]:
     st.session_state["touchengmode"] = tempdict['touchengmode']
     st.session_state["erchengfulfilltype"] = tempdict['erchengfulfilltype']
     st.session_state["erchengmode"] = tempdict['erchengmode']
-    st.session_state["isbusy"] = tempdict['isbusy1']
+    st.session_state["isbusy_cn"] = tempdict['isbusy1']
 
 
     col1, col2,col3,col4= st.columns(4)
@@ -68,9 +68,9 @@ if st.session_state["username"] and st.session_state["tempname"]:
         erchengfulfilltype=st.selectbox('二程发货方式',[st.session_state["erchengfulfilltype"]]+['fba','fbm'])
     with col4:
         erchengmode=st.selectbox('二程类型',[st.session_state["erchengmode"]]+get_erchengmode(platform,area,erchengfulfilltype))
-        isbusy=st.selectbox('运费方式',[st.session_state["isbusy"]]+['高峰','非高峰'])
-        isbusydict={'高峰':'busy','非高峰':'notbusy'}
-        isbusy1=isbusydict[isbusy]
+        isbusy=st.selectbox('运费方式',[st.session_state["isbusy_cn"]]+['高峰','非高峰'])
+        # isbusydict={'高峰':'busy','非高峰':'notbusy'}
+        # isbusy1=isbusydict[isbusy]
 else:
     col1, col2,col3,col4= st.columns(4)
     with col1:
@@ -86,8 +86,8 @@ else:
     with col4:
         erchengmode=st.selectbox('二程类型',get_erchengmode(platform,area,erchengfulfilltype))
         isbusy=st.selectbox('运费方式',['高峰','非高峰'])
-        isbusydict={'高峰':'busy','非高峰':'notbusy'}
-        isbusy1=isbusydict[isbusy]
+        # isbusydict={'高峰':'busy','非高峰':'notbusy'}
+        # isbusy1=isbusydict[isbusy]
 
 col1, col2= st.columns(2)
 with col1:
@@ -134,7 +134,7 @@ with st.container():
         if st.session_state['username'] and st.session_state['tempname']:
             # print(st.session_state['username'] , st.session_state['tempname'])
             updatetempindb(platform, area, country, month, touchengmode, erchengfulfilltype, erchengmode,
-                                isbusy1, st.session_state["username"], st.session_state["tempname"])
+                                isbusy, st.session_state["username"], st.session_state["tempname"])
             st.session_state["savetemp"] = False
             st.experimental_rerun()
         else:
@@ -151,17 +151,13 @@ with st.container():
                 submitted =st.form_submit_button("保存")
                 if submitted :
                     savetemp2db(platform, area, country, month, touchengmode, erchengfulfilltype, erchengmode,
-                                isbusy1, st.session_state["username"], st.session_state["tempname"])
+                                isbusy, st.session_state["username"], st.session_state["tempname"])
                     st.session_state["savetemp"] = False  # 恢复session_state为False
 
                     st.experimental_rerun()
                 # st.button("保存", key="savetemp", on_click=save_btn_click)
 
 
-# if st.session_state["savetemp"]:
-#     savetemp2db(platform,area,country,month,touchengmode,erchengfulfilltype,erchengmode,isbusy1,username,tempname)
-#
-#     st.session_state["savetemp"] = False
 
 
 tab1,tab2=st.tabs(['定价表','明细'])
