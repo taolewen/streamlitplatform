@@ -7,8 +7,3 @@ import time
 # for percent_complete in range(100):
 #     time.sleep(0.1)
 #     my_bar.progress(percent_complete + 1, text=progress_text)
-
-import streamlit as st
-
-st.success('This is a success message!', icon="✅")
-st.error('This is an error', icon="🚨")

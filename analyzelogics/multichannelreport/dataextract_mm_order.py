@@ -126,8 +126,8 @@ def dealsinglefile(path,attrjson):
             "Shipping costs VAT excluded": "Shipping_costs_VAT_excluded",
             "Price VAT included": "Price_VAT_included",
             "Status": "Status",
-            "Delivery date": "Delivery_date",
-            "Concrete guarantee status": "Concrete_guarantee_status"
+            # "Delivery date": "Delivery_date",
+            # "Concrete guarantee status": "Concrete_guarantee_status"
 
         },inplace=True)
         df['area'] = attrjson['area']
@@ -179,8 +179,8 @@ def dealsinglefile(path,attrjson):
                "Shipping_costs_VAT_excluded",
                "Price_VAT_included",
                "Status",
-               "Delivery_date",
-               "Concrete_guarantee_status",
+               # "Delivery_date",
+               # "Concrete_guarantee_status",
                "batchid"
         ]]
 
