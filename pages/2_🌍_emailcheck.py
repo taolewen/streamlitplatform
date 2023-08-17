@@ -82,7 +82,7 @@ if key == key_input:
 
 
         csv = convert_df(df)
-        col1_maillist, col2_maillist,col3_maillist = st.columns(3)
+        col1_maillist, col2_maillist,col3_maillist, col4_maillist,col5_maillist = st.columns(5)
 
         with col1_maillist:
             if st.button('删除',key=2):
@@ -95,7 +95,7 @@ if key == key_input:
                 st.experimental_rerun()
         with col3_maillist:
             st.download_button(
-                label="Download data as CSV",
+                label="下载邮件列表",
                 data=csv,
                 file_name='email_list.csv',
                 mime='text/csv',

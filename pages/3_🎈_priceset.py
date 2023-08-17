@@ -8,7 +8,7 @@ from pyecharts.charts import Bar
 from pyecharts import options as opts
 from pyecharts.globals import ThemeType
 from analyzelogics.priceset.pricesetselect import get_platform, get_area, get_country, get_month, get_touchengmode, \
-    get_erchengmode, get_feerate, cal_data
+    get_erchengmode, get_feerate, cal_data, get_testitems, update_testitems
 from analyzelogics.priceset.tempupdate import savetemp2db, get_user, get_temp, updatetempindb, get_one_temp
 from dbs import  mysqlconn
 from streamlit_modal import Modal
@@ -209,8 +209,8 @@ with st.sidebar:
         df_s=st.data_editor(df_s,hide_index=True)
 
 
-
 with tab1:
+
     if ispaste:
         df_m=cal_data(platform=platform,area=area,country=country,erpsku=erpsku,usesku=usesku,month=month,touchengmode=touchengmode,isbusy=isbusy,erchengfulfilltype=erchengfulfilltype,erchengmode=erchengmode,
                         invrentrate=float(invrentrate),commissionrate=float(commissionrate),vatrate=float(vatrate),otherrate=float(otherrate),waverate=float(waverate))
@@ -327,6 +327,7 @@ with tab1:
     #     )
 
 with tab2:
+
     if ispaste:
         df_m=cal_data(platform=platform,area=area,country=country,erpsku=erpsku,usesku=usesku,month=month,touchengmode=touchengmode,isbusy=isbusy,erchengfulfilltype=erchengfulfilltype,erchengmode=erchengmode,
                         invrentrate=float(invrentrate),commissionrate=float(commissionrate),vatrate=float(vatrate),otherrate=float(otherrate),waverate=float(waverate))
@@ -428,6 +429,12 @@ with tab2:
             },
 
             hide_index=True)
+
+
+
+
+
+
 st.session_state['excelfilepath']=None
 st.session_state['excelfilename']=None
 def outputexcel(df_m,username,tempname):
@@ -440,15 +447,6 @@ def outputexcel(df_m,username,tempname):
     workbook = writer.book
     worksheet = writer.sheets['Sheet1']
 
-    # maxlen=len(df_m)
-    # print('maxlen>>>>>'+str(maxlen))
-    # for i in (2,maxlen+1):
-    #     worksheet[f'ab{i}'] = f'=(z{i}-(p{i}+q{i}+r{i}+u{i}+w{i})-(x{i}/100+y{i}/100))*aa{i}'
-    #     worksheet[f'ac{i}'] = f'=ab{i}/(z{i}*aa{i})'
-    #     worksheet[f'ad{i}'] = f'=(p{i}+q{i}+r{i}+u{i}+w{i})/(1-(y{i}/100+x{i}/100))'
-    #     worksheet[f'ae{i}'] = f'=(p{i}+q{i}+r{i}+u{i}+w{i})/(1-(0.05+y{i}/100+x{i}/100))'
-    #     worksheet[f'af{i}'] = f'=(p{i}+q{i}+r{i}+u{i}+w{i})/(1-(0.1+y{i}/100+x{i}/100))'
-
     worksheet[f'ab2'] = f'=(z2-(p2+q2+r2+u2+w2)-(x2/100+y2/100)*z2)*aa2'
     worksheet[f'ac2'] = f'=ab2/(z2*aa2)'
     worksheet[f'ad2'] = f'=(p2+q2+r2+u2+w2)/(1-(y2/100+x2/100))'
@@ -458,14 +456,10 @@ def outputexcel(df_m,username,tempname):
     writer._save()
     st.session_state['excelfilepath']=filepath
     st.session_state['excelfilename'] = filename
-
 st.session_state['fileok']=False
 
 
-# def setfilestatusok_btn_click():
-#     st.session_state['fileok']=True
-# def setfilestatusnotok_btn_click():
-#     st.session_state['fileok']=False
+
 col1, col2,col3,col4= st.columns(4)
 with col1:
     if st.button('生成excel'):
@@ -481,15 +475,14 @@ with col2:
                 file_name=st.session_state['excelfilename'],
                 mime="application/vnd.ms-excel",
             )
-
-# @st.cache_data
-# def convert_df(df):
-#     # IMPORTANT: Cache the conversion to prevent computation on every rerun
-#     return df.to_csv().encode('utf-8')
-# csv = convert_df(df_m)
-# st.download_button(
-#     label="Download data as CSV",
-#     data=csv,
-#     file_name='定价表.csv',
-#     mime='text/csv',
-# )
+st.divider()
+with st.expander('测试sku填写'):
+    df_tests=get_testitems()
+    df_tests=st.data_editor(df_tests,hide_index=True)
+    if st.button('提交'):
+        res=update_testitems(df_tests)
+        # st.write(res)
+        if res==1:
+            st.write('提交成功')
+        else:
+            st.write('提交失败')

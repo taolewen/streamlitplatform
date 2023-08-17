@@ -1,9 +1,15 @@
+import traceback
+from urllib.parse import quote_plus
+
+import numpy as np
 import pandas as pd
 import pymysql
 
 # from dbs import mysqlconn
 import streamlit as st
 from numpy import float64
+from sqlalchemy import create_engine
+
 
 @st.cache_data
 def get_platform():
@@ -201,5 +207,43 @@ def cal_data(platform=None,area=None,country=None,erpsku=None,usesku=None,month=
     df_m['rate_combine']=vatrate+waverate+commissionrate+otherrate
     return df_m
 
+@st.cache_data
+def get_testitems():
+    mysqlconn = pymysql.connect(host=st.secrets["mysql"]['host'],
+                                user=st.secrets["mysql"]['user'],
+                                password=st.secrets["mysql"]['password'],
+                                db=st.secrets["mysql"]['database'])
+    df=pd.read_sql(f'''select erp_sku,
+                        usesku,
+                        lenth,
+                        width,
+                        height,
+                        uv,
+                        grossweight,
+                        packingrate,
+                        purchaseprice
+                         from priceset_testitem_copy1 
+                   ''',con=mysqlconn)
+    l=len(df)
+    for i in range(0+l, 50+l):
+        df.loc[i] = [np.NAN, np.NAN, np.NAN, np.NAN, np.NAN, np.NAN, np.NAN, np.NAN, np.NAN]
+    return df
 
 
+def update_testitems(df):
+    try:
+        df=df.loc[  ~df.erp_sku .isnull()]
+        host = st.secrets["mysql"]['host'],
+        user = st.secrets["mysql"]['user'],
+        password = st.secrets["mysql"]['password'],
+        db = st.secrets["mysql"]['database']
+        connstr = f"mysql+pymysql://{user[0]}:%s@{host[0]}:3306/{db}?charset=utf8" % quote_plus(f'{password[0]}')
+
+        engine = create_engine(connstr)
+
+        df.to_sql(name='priceset_testitem_copy1', con=engine, if_exists='replace', index=False, index_label=False)
+
+        return 1
+    except:
+        traceback.print_exc()
+        return 2

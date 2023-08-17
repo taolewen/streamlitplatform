@@ -8,14 +8,14 @@ def get_data(title=None):
     mysqlconn = pymysql.connect(host=st.secrets["mysql"]['host'],
                                 user=st.secrets["mysql"]['user'],
                                 password=st.secrets["mysql"]['password'],
-                                db=st.secrets["mysql"]['database'])
+                                db=st.secrets["mysql"]['database_crawldata'])
     df=pd.read_sql(f'''select id,mailaddress,status,name from email_check  {'' if title==None else f'where mailaddress like "%{title}%" '}''',con=mysqlconn)
     return df
 def check_dup(mailaddress,status=0,name='test'):
     mysqlconn = pymysql.connect(host=st.secrets["mysql"]['host'],
                                 user=st.secrets["mysql"]['user'],
                                 password=st.secrets["mysql"]['password'],
-                                db=st.secrets["mysql"]['database'])
+                                db=st.secrets["mysql"]['database_crawldata'])
     df=pd.read_sql(f'''select mailaddress,status,name from email_check where mailaddress='{mailaddress.replace(' ','')}' ''',con=mysqlconn)
     print(f'''select mailaddress,status from email_check where mailaddress='{mailaddress.replace(' ','')}' ''')
     print(df)
@@ -29,7 +29,7 @@ def newaddress(mailaddress,name='test'):
     mysqlconn1 = pymysql.connect(host=st.secrets["mysql"]['host'],
                                  user=st.secrets["mysql"]['user'],
                                  password=st.secrets["mysql"]['password'],
-                                 db=st.secrets["mysql"]['database'])
+                                 db=st.secrets["mysql"]['database_crawldata'])
     status = '未回复'
     sql = f''' insert into email_check (mailaddress,status,name) values ('{mailaddress.replace(' ', '')}','{status}','{name}') '''
     cursor = mysqlconn1.cursor()
@@ -45,7 +45,7 @@ def update_status(mailaddress,status):
     mysqlconn2 = pymysql.connect(host=st.secrets["mysql"]['host'],
                                  user=st.secrets["mysql"]['user'],
                                  password=st.secrets["mysql"]['password'],
-                                 db=st.secrets["mysql"]['database'])
+                                 db=st.secrets["mysql"]['database_crawldata'])
 
     cursor = mysqlconn2.cursor()
     cursor.execute(sql)
@@ -60,7 +60,7 @@ def delete_mails(mailids):
     mysqlconn2 = pymysql.connect(host=st.secrets["mysql"]['host'],
                                  user=st.secrets["mysql"]['user'],
                                  password=st.secrets["mysql"]['password'],
-                                 db=st.secrets["mysql"]['database'])
+                                 db=st.secrets["mysql"]['database_crawldata'])
     for id in mailids:
         sql=f'''delete from email_check where id={id}'''
         print(sql)
