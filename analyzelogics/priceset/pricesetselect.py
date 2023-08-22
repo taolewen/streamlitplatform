@@ -222,7 +222,7 @@ def get_testitems():
                         grossweight,
                         packingrate,
                         purchaseprice
-                         from priceset_testitem_copy1 
+                         from priceset_testitem
                    ''',con=mysqlconn)
     l=len(df)
     for i in range(0+l, 50+l):
@@ -241,7 +241,7 @@ def update_testitems(df):
 
         engine = create_engine(connstr)
 
-        df.to_sql(name='priceset_testitem_copy1', con=engine, if_exists='replace', index=False, index_label=False)
+        df.to_sql(name='priceset_testitem', con=engine, if_exists='replace', index=False, index_label=False)
 
         return 1
     except:
