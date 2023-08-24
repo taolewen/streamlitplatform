@@ -68,7 +68,7 @@ def deletebatch(batchid):
                                password='csbd@123',
                                database='csbd')
         cursor = conn.cursor()
-        sql0 = f"""delete from  newchannel_cd_paymentdetail where batchid = '{batchid}' """
+        sql0 = f"""delete from  newchannel_cd_paymentdetail_returnmoney where batchid = '{batchid}' """
         cursor.execute(sql0)
         sql = f"""delete from  newchannel_batchinfo where batchid = '{batchid}' """
         cursor.execute(sql)
@@ -109,7 +109,7 @@ def dealsinglefile(path,attrjson):
               'Date_virement','Vente_TTC_hors_frais_de_port','Frais_de_port_TTC','Commission_Produit','Commission_Facilités_de_paiement','Commission_Frais_de_paiement_4_fois',
               'Remboursement_TTC_hors_frais_de_port','Avoir_commission','Montant_de_TVA_sur_Vente_remboursement','Montant_de_TVA_sur_frais_de_port','Total_recu','Devise','batchid']]
 
-        df.to_sql(name='newchannel_cd_paymentdetail', con=engine, if_exists='append', index=False, index_label=False)
+        df.to_sql(name='newchannel_cd_paymentdetail_returnmoney', con=engine, if_exists='append', index=False, index_label=False)
         updatebatch(attrjson,batchid,path)
 
         return 1,''
