@@ -8,9 +8,9 @@ import tempfile
 from analyzelogics.multichannelreport import dataextract_wf_order_shipped, dataextract_wf_advertise, \
     dataextract_wf_remittance, dataextract_wf_logisticsinvoice, dataextract_wf_curcharges, dataextract_wm_order, \
     dataextract_wm_ad, dataextract_wm_order_jd, dataextract_wm_payment, dataextract_wm_return, \
-    dataextract_wm_settlement, dataextract_cd_orderextract, dataextract_cd_paymentdetail, dataextract_ebay_trans, \
+    dataextract_wm_settlement, dataextract_cd_orderextract, dataextract_cd_paymentdetail_returnmoney, dataextract_ebay_trans, \
     dataextract_ebay_orders, dataextract_mm_order, dataextract_mm_ad, dataextract_mm_return, dataextract_mm_payment, \
-    dataextract_shopify_order, dataextract_shopify_ad1, dataextract_shopify_ad2
+    dataextract_shopify_order, dataextract_shopify_ad1, dataextract_shopify_ad2, dataextract_cd_paymentdetail_settlement
 from analyzelogics.multichannelreport.attr_get import get_option
 
 if "channel" not in st.session_state:
@@ -142,9 +142,10 @@ with tab1:
             if st.session_state['channel'] == 'CD':
                 if st.session_state['reporttype'] == 'orderextract':
                     s, m = dataextract_cd_orderextract.dealsinglefile(uploadfilepath, d)
-                if st.session_state['reporttype'] == 'paymentdetail':
-                    s, m = dataextract_cd_paymentdetail.dealsinglefile(uploadfilepath, d)
-
+                if st.session_state['reporttype'] == 'paymentdetail_回款':
+                    s, m = dataextract_cd_paymentdetail_returnmoney.dealsinglefile(uploadfilepath, d)
+                if st.session_state['reporttype'] == 'paymentdetail_结算':
+                    s, m = dataextract_cd_paymentdetail_settlement.dealsinglefile(uploadfilepath, d)
             if st.session_state['channel'] == 'Ebay':
                 if st.session_state['reporttype'] == 'transaction':
                     s, m = dataextract_ebay_trans.dealsinglefile(uploadfilepath, d)
@@ -211,8 +212,10 @@ with tab2:
     elif st.session_state['channel'] == 'CD':
         if st.session_state['reporttype'] == 'orderextract':
             df_check=dataextract_cd_orderextract.selectbatch(d)
-        elif st.session_state['reporttype'] == 'paymentdetail':
-            df_check=dataextract_cd_paymentdetail.selectbatch(d)
+        elif st.session_state['reporttype'] == 'paymentdetail_回款':
+            df_check=dataextract_cd_paymentdetail_returnmoney.selectbatch(d)
+        elif st.session_state['reporttype'] == 'paymentdetail_结算':
+            df_check=dataextract_cd_paymentdetail_settlement.selectbatch(d)
     elif st.session_state['channel'] == 'Ebay':
         if st.session_state['reporttype'] == 'transaction':
             df_check=dataextract_ebay_trans.selectbatch(d)
@@ -284,9 +287,10 @@ with tab2:
         if st.session_state['channel'] == 'CD':
             if st.session_state['reporttype'] == 'orderextract':
                 s, m = dataextract_cd_orderextract.deletebatch(batchid)
-            if st.session_state['reporttype'] == 'paymentdetail':
-                s, m = dataextract_cd_paymentdetail.deletebatch(batchid)
-
+            if st.session_state['reporttype'] == 'paymentdetail_回款':
+                s, m = dataextract_cd_paymentdetail_returnmoney.deletebatch(batchid)
+            if st.session_state['reporttype'] == 'paymentdetail_结算':
+                s, m = dataextract_cd_paymentdetail_settlement.deletebatch(batchid)
         if st.session_state['channel'] == 'Ebay':
             if st.session_state['reporttype'] == 'transaction':
                 s, m = dataextract_ebay_trans.deletebatch(batchid)

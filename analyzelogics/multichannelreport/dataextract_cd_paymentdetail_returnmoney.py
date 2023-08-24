@@ -19,7 +19,7 @@ from sqlalchemy import create_engine
 connstr = "mysql+pymysql://developer:%s@124.71.174.53:3306/csbd?charset=utf8" % quote_plus('csbd@123')
 engine = create_engine(connstr)
 pd.set_option('display.max_columns', None)
-reporttype='dataextract_cd_paymentdetail'
+reporttype='dataextract_cd_paymentdetail_returnmoney'
 
 def getuid():
     uid = str(uuid.uuid4())

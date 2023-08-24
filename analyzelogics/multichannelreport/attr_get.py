@@ -18,7 +18,7 @@ def get_option(channel):
             'qijian': []
         },
         'CD': {
-            'reporttype': ['orderextract','paymentdetail'],
+            'reporttype': ['orderextract','paymentdetail_回款','paymentdetail_结算'],
             'country': ['FR'],
             'area': ['EU'],
             'store': ['CD-1','CD-3','CD-6','CD-HYL'],
