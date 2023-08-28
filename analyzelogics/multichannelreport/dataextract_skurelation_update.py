@@ -13,7 +13,12 @@ import pandas as pd
 # 显示所有列
 from sqlalchemy import create_engine
 
-connstr = "mysql+pymysql://developer:%s@124.71.174.53:3306/csbd?charset=utf8" % quote_plus('csbd@123')
+import streamlit as st
+host = st.secrets["mysql"]['host'],
+user = st.secrets["mysql"]['user'],
+password = st.secrets["mysql"]['password'],
+db = st.secrets["mysql"]['database']
+connstr = f"mysql+pymysql://{user[0]}:%s@{host[0]}:3306/{db}?charset=utf8" % quote_plus(f'{password[0]}')
 engine = create_engine(connstr)
 pd.set_option('display.max_columns', None)
 
@@ -31,10 +36,10 @@ def dealsinglefile(path):
         df = df[['country','store','seller_SKU','ERP_SKU'
                  ]]
 
-        conn = pymysql.connect(host='124.71.174.53',
-                               user='developer',
-                               password='csbd@123',
-                               database='csbd')
+        conn = pymysql.connect(host=st.secrets["mysql"]['host'],
+                               user=st.secrets["mysql"]['user'],
+                               password=st.secrets["mysql"]['password'],
+                               db=st.secrets["mysql"]['database'])
         cursor = conn.cursor()
         sql = f"""truncate table new_channel_correspondence """
         cursor.execute(sql)

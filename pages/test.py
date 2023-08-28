@@ -23,10 +23,10 @@ import streamlit as st
 # http://localhost:8501/?id=1
 
 # {"id": ["1"]}
-mysqlconn = pymysql.connect(host='124.71.174.53',
-                            user='developer',
-                            password='csbd@123',
-                            database='csbd')
+mysqlconn = pymysql.connect(host=st.secrets["mysql"]['host'],
+                                user=st.secrets["mysql"]['user'],
+                                password=st.secrets["mysql"]['password'],
+                                db=st.secrets["mysql"]['database'])
 
 st.experimental_get_query_params()
 if st.experimental_get_query_params():

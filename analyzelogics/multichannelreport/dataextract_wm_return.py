@@ -15,7 +15,12 @@ import pandas as pd
 from sqlalchemy import create_engine
 
 
-connstr = "mysql+pymysql://developer:%s@124.71.174.53:3306/csbd?charset=utf8" % quote_plus('csbd@123')
+import streamlit as st
+host = st.secrets["mysql"]['host'],
+user = st.secrets["mysql"]['user'],
+password = st.secrets["mysql"]['password'],
+db = st.secrets["mysql"]['database']
+connstr = f"mysql+pymysql://{user[0]}:%s@{host[0]}:3306/{db}?charset=utf8" % quote_plus(f'{password[0]}')
 engine = create_engine(connstr)
 pd.set_option('display.max_columns', None)
 reporttype='dataextract_wm_return'
@@ -25,10 +30,10 @@ def getuid():
     suid = ''.join(uid.split('-'))
     return suid
 def updatebatch(attrjson,batchid,path):
-    conn = pymysql.connect(host='124.71.174.53',
-                           user='developer',
-                           password='csbd@123',
-                           database='csbd')
+    conn = pymysql.connect(host=st.secrets["mysql"]['host'],
+                                user=st.secrets["mysql"]['user'],
+                                password=st.secrets["mysql"]['password'],
+                                db=st.secrets["mysql"]['database'])
     cursor = conn.cursor()
     sql = f"""insert newchannel_batchinfo (batchid,reporttype,path,area,country,week,store,qijian) values 
     ('{batchid}','{reporttype}','{path}','{attrjson['area'].upper()}','{(attrjson['country']).upper()}',
@@ -62,10 +67,10 @@ def selectbatch(attrjson):
     return df
 def deletebatch(batchid):
     try:
-        conn = pymysql.connect(host='124.71.174.53',
-                               user='developer',
-                               password='csbd@123',
-                               database='csbd')
+        conn = pymysql.connect(host=st.secrets["mysql"]['host'],
+                               user=st.secrets["mysql"]['user'],
+                               password=st.secrets["mysql"]['password'],
+                               db=st.secrets["mysql"]['database'])
         cursor = conn.cursor()
 
         sql1 = f"""delete from  newchannel_wm_return where batchid = '{batchid}' """
