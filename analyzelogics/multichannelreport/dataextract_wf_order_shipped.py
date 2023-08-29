@@ -86,15 +86,33 @@ def deletebatch(batchid):
 def dealsinglefile(path,attrjson):
     try:
         batchid=getuid()
+        if attrjson['area']=='CA':
+            names = ["Warehouse_Name", "Store_Name", "PO_Number", "PO_Date", "Must_Ship_By", "Backorder_Date",
+                     "Order_Status", "Item_Number", "Item_Name", "Quantity", "Wholesale_Price", "Ship_Method",
+                     "Carrier_Name", "Shipping_Account_Number", "Ship_To_Name", "Ship_To_Address", "Ship_To_Address_2",
+                     "Ship_To_City",
+                     "Ship_To_State", "Ship_To_Zip", "Ship_To_Phone", "Inventory_at_PO_Time", "Inventory_Send_Date",
+                     "Ship_Speed",
+                     "PO_Date_&_Time", "Registered_Timestamp", "Customization_Text", "Event_Name", "Event_ID",
+                     "Event_Start_Date",
+                     "Event_End_Date", "Event_Type", "Backorder_Reason", "Original_Product_ID", "Original_Product_Name",
+                     "Event_Inventory_Source",
+                     "Packing_Slip_URL", "Tracking_Number", "Ready_for_Pickup_Date", "SKU", "Destination_Country",
+                     "Depot_ID",
+                     "Depot_Name", "Wholesale_Event_Source", "Wholesale_Event_Store_Source", "B2BOrder",
+                     "Composite_Wood_Product","ship_date", "Sales_Channel"]
 
-        names=["Warehouse_Name","Store_Name","PO_Number","PO_Date","Must_Ship_By","Backorder_Date",
-               "Order_Status","Item_Number","Item_Name","Quantity","Wholesale_Price","Ship_Method",
-               "Carrier_Name","Shipping_Account_Number","Ship_To_Name","Ship_To_Address","Ship_To_Address_2","Ship_To_City",
-               "Ship_To_State","Ship_To_Zip","Ship_To_Phone","Inventory_at_PO_Time","Inventory_Send_Date","Ship_Speed",
-               "PO_Date_&_Time","Registered_Timestamp","Customization_Text","Event_Name","Event_ID","Event_Start_Date",
-               "Event_End_Date","Event_Type","Backorder_Reason","Original_Product_ID","Original_Product_Name","Event_Inventory_Source",
-               "Packing_Slip_URL","Tracking_Number","Ready_for_Pickup_Date","SKU","Destination_Country","Depot_ID",
-               "Depot_Name","Wholesale_Event_Source","Wholesale_Event_Store_Source","B2BOrder","Composite_Wood_Product","Sales_Channel"]
+        else:
+            names=["Warehouse_Name","Store_Name","PO_Number","PO_Date","Must_Ship_By","Backorder_Date",
+                   "Order_Status","Item_Number","Item_Name","Quantity","Wholesale_Price","Ship_Method",
+                   "Carrier_Name","Shipping_Account_Number","Ship_To_Name","Ship_To_Address","Ship_To_Address_2","Ship_To_City",
+                   "Ship_To_State","Ship_To_Zip","Ship_To_Phone","Inventory_at_PO_Time","Inventory_Send_Date","Ship_Speed",
+                   "PO_Date_&_Time","Registered_Timestamp","Customization_Text","Event_Name","Event_ID","Event_Start_Date",
+                   "Event_End_Date","Event_Type","Backorder_Reason","Original_Product_ID","Original_Product_Name","Event_Inventory_Source",
+                   "Packing_Slip_URL","Tracking_Number","Ready_for_Pickup_Date","SKU","Destination_Country","Depot_ID",
+                   "Depot_Name","Wholesale_Event_Source","Wholesale_Event_Store_Source","B2BOrder","Composite_Wood_Product","Sales_Channel"]
+
+
         df=pd.read_csv(path,skiprows=1,names=names)
 
         df['area']=attrjson['area']
