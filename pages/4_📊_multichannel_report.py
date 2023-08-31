@@ -244,7 +244,7 @@ with tab2:
             default=False,
         )
     },
-    disabled=["batchid","area","country","qijian","week","store","createdate","reporttype"],
+    disabled=["batchid","area","country","qijian","week","store","filename","createdate","reporttype"],
     hide_index=True,)
 
     if "delete" not in st.session_state:

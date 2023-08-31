@@ -60,9 +60,15 @@ def selectbatch(attrjson):
         str=f"{d['createdate']}_{filename}_{d['area']}_{d['country']}_{d['store']}_{d['week']}_{d['batchid']}"
         # print(str)
         strlist.append(str)
+    def getfilename(x):
+        try:
+            return x.split('/')[-1]
+        except:
+            return 'none'
+    df['filename']=df.apply(lambda x:getfilename(x.path),axis=1)
     df=df.drop('path', axis=1)
     df['delete']=False
-    df=df[['delete','area','country','qijian','week','store','createdate','reporttype','batchid']]
+    df=df[['delete','area','country','qijian','week','store','filename','createdate','reporttype','batchid']]
     return df
 def deletebatch(batchid):
     try:
