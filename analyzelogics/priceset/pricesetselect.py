@@ -179,7 +179,8 @@ def cal_data(platform=None,area=None,country=None,erpsku=None,usesku=None,month=
     df_ercheng=pd.read_sql(f'''
                                 select erp_sku,ec ercheng from 
                                 (
-                                SELECT 'fba' ectype,erp_sku,platform,area,country,concat('fba_',ftype) ftype,(case when '{isbusy1}' ='notbusy' then erchengfee_total_notbusy else erchengfee_total_busy end) ec FROM `priceset_fba_result`
+                                SELECT 'fba' ectype,erp_sku,platform,area,country,concat('fba_',ftype) ftype,(case when '{isbusy1}' ='notbusy' then erchengfee_total_notbusy else erchengfee_total_busy end) ec 
+                                FROM `priceset_fba_result`
                                 ) a 
                                 where ectype='{erchengfulfilltype}'
                                 {"" if not platform else f"and platform = '{platform}'"}
