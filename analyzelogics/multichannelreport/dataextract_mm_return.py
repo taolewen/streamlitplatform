@@ -91,9 +91,14 @@ def deletebatch(batchid):
 def dealsinglefile(path,attrjson):
     try:
         batchid=getuid()
-        name=['Date','Instalment_date','Transaction_number','Customer_last_name','Customer_first_name','Order_number','Seller','Transaction_type','Payment_in_3_installments',
-                'Product_order_ref','Product_name','sku','Quantity','Total_sales','Products_total','Shipping_total','Selling_Fees_excl_VAT','VAT_on_Selling_Fees',
-              'Discount_coupon','Shipping_fees_discount','Amount_transferred_to_seller']
+        if len(str(attrjson['week']))==6:
+            name=['Date','Instalment_date','Transaction_number','Customer_last_name','Customer_first_name','Order_number','Seller','Transaction_type','Payment_in_3_installments',
+                    'Product_order_ref','Product_name','sku','Quantity','Total_sales','Products_total','Shipping_total','Selling_Fees_excl_VAT','VAT_on_Selling_Fees',
+                  'Discount_coupon','Shipping_fees_discount','Amount_transferred_to_seller','addcol']
+        else:
+            name=['Date','Instalment_date','Transaction_number','Customer_last_name','Customer_first_name','Order_number','Seller','Transaction_type','Payment_in_3_installments',
+                    'Product_order_ref','Product_name','sku','Quantity','Total_sales','Products_total','Shipping_total','Selling_Fees_excl_VAT','VAT_on_Selling_Fees',
+                  'Discount_coupon','Shipping_fees_discount','Amount_transferred_to_seller']
         # df=pd.read_excel(path,sheet_name='soges MF-退款')
         df = pd.read_excel(path, names = name)
         df=df.iloc[:,0:21]
