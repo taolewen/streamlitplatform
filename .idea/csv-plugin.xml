@@ -3,69 +3,6 @@
   <component name="CsvFileAttributes">
     <option name="attributeMap">
       <map>
-        <entry key="\analyzelogics\multichannelreport_insertcheck\test_cd_order.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="\analyzelogics\multichannelreport_insertcheck\test_cd_returnmoney.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="\analyzelogics\multichannelreport_insertcheck\test_cd_returnmoney1.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="\analyzelogics\multichannelreport_insertcheck\test_cd_settle.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="\analyzelogics\multichannelreport_insertcheck\test_cd_settle1.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="\analyzelogics\multichannelreport_insertcheck\test_mm_order.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="\analyzelogics\multichannelreport_insertcheck\test_mm_os.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="\analyzelogics\multichannelreport_insertcheck\test_mm_settle.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="\analyzelogics\multichannelreport_insertcheck\test_mm_so.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
         <entry key="\fdfd0.csv">
           <value>
             <Attribute>

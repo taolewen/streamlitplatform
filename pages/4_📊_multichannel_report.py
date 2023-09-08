@@ -73,7 +73,7 @@ def clearjson_btn_click():
     st.session_state["addcoldict"] = None
 if st.checkbox('添加额外字段',on_change=clearjson_btn_click):
     try:
-        addcoljson=st.text_input('示例：{"store":"XXXX","xxxxxx":"xxxxx"}',placeholder='{"store":"XXXX","xxxxxx":"xxxxx"}')
+        addcoljson=st.text_input('示例：{"shop":"XXXX","xxxxxx":"xxxxx"}',placeholder='{"store":"XXXX","xxxxxx":"xxxxx"}')
         if addcoljson:
             st.session_state['addcoldict']=json.loads(addcoljson)
             for key in st.session_state['addcoldict'].keys():
