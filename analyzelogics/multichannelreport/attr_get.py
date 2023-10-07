@@ -21,7 +21,7 @@ def get_option(channel):
             'reporttype': ['orderextract','paymentdetail_回款','paymentdetail_结算'],
             'country': ['FR'],
             'area': ['EU'],
-            'store': ['CD-1','CD-3','CD-6','CD-HYL'],
+            'store': ['CD-1','CD-3','CD-6','CD-HYL','CD-HEMQ'],
             'week': [],
             'qijian': []
         },
@@ -49,6 +49,13 @@ def get_option(channel):
             'week': [],
             'qijian': []
         },
-
+        'shein': {
+            'reporttype': ['订单', '回款'],
+            'country': ['US', ''],
+            'area': ['US', ''],
+            'store': ['Shein-US',''],
+            'week': [],
+            'qijian': []
+        },
     }
     return opdict[channel]
