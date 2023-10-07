@@ -91,8 +91,10 @@ def deletebatch(batchid):
 def dealsinglefile(path,attrjson):
     try:
         batchid=getuid()
-        name=['gsp_orderid','sellersku','pro_price','username','postcode','country','province','city','user_address1','user_address2','phonenum']
-
+        # name=['gsp_orderid','sellersku','pro_price','username','postcode','country','province','city','user_address1','user_address2','phonenum']
+        name=['订单类型','订单号','换货订单','订单状态','发货模式','是否催发','是否丢件','是否滞留','问题订单','商品名称',
+              '货号','规格','卖家SKU','SHEIN_SKU','SKC','商品ID','商品状态','库存标识','换货标识','换货原因','被换商品ID','是否锁定','分单时间','要求签收时间',
+              '运单号','卖家包裹','卖家币种','商品价格','消费税','预计收入']
         # df=pd.read_excel(path,sheet_name='soges MF-退款')
         df = pd.read_excel(path, names = name)
         # df.to_csv('fdfd0.csv')
@@ -105,8 +107,15 @@ def dealsinglefile(path,attrjson):
         df['batchid']=batchid
         # df.to_csv('fdfd.csv')
 
+        # df=df[['area','country','store','week','qijian',
+        #        'gsp_orderid','sellersku','pro_price','username','postcode','country','province','city','user_address1','user_address2','phonenum',
+        #        "batchid"
+        # ]]
         df=df[['area','country','store','week','qijian',
-               'gsp_orderid','sellersku','pro_price','username','postcode','country','province','city','user_address1','user_address2','phonenum',
+               '订单类型', '订单号', '换货订单', '订单状态', '发货模式', '是否催发', '是否丢件', '是否滞留', '问题订单', '商品名称',
+               '货号', '规格', '卖家SKU', 'SHEIN_SKU', 'SKC', '商品ID', '商品状态', '库存标识', '换货标识', '换货原因', '被换商品ID', '是否锁定',
+               '分单时间', '要求签收时间',
+               '运单号', '卖家包裹', '卖家币种', '商品价格', '消费税', '预计收入',
                "batchid"
         ]]
 
