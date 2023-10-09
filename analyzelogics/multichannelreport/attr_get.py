@@ -29,7 +29,7 @@ def get_option(channel):
             'reporttype': ['广告','订单','退款','回款'],
             'country': ['FR','DE'],
             'area': ['EU'],
-            'store': ['MM-2','MM-3','MM-3-DE','MM-3-MF'],
+            'store': ['MM-2','MM-3','MM-3-DE','MM-3-MF','MM-HEMQ'],
             'week': [],
             'qijian': []
         },
