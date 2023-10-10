@@ -132,7 +132,7 @@ def cal_data(platform=None,area=None,country=None,erpsku=None,usesku=None,month=
                     {"" if not area else f"and area = '{area}'"}
                     {"" if not country else f"and country = '{country}'"}
                     {"" if not erpsku else f"and erp_sku like '%{erpsku}%'"}
-                    {"" if not usesku else f"and usesku = '%{usesku}%'"}
+                    {"" if not usesku else f"and usesku like '%{usesku}%'"}
                     
                     ''',con=mysqlconn)
 
