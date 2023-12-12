@@ -12,7 +12,8 @@ from analyzelogics.multichannelreport import dataextract_wf_order_shipped, datae
     dataextract_ebay_trans, \
     dataextract_ebay_orders, dataextract_mm_order, dataextract_mm_ad, dataextract_mm_return, dataextract_mm_payment, \
     dataextract_shopify_order, dataextract_shopify_ad1, dataextract_shopify_ad2, \
-    dataextract_cd_paymentdetail_settlement, dataextract_shein_order, dataextract_shein_payment
+    dataextract_cd_paymentdetail_settlement, dataextract_shein_order, dataextract_shein_payment, \
+    dataextract_mm_storagefeesmf, dataextract_mm_mastersheetmf
 from analyzelogics.multichannelreport.attr_get import get_option
 
 if "channel" not in st.session_state:
@@ -162,6 +163,10 @@ with tab1:
                     s, m = dataextract_mm_return.dealsinglefile(uploadfilepath, d)
                 if st.session_state['reporttype'] == '回款':
                     s, m = dataextract_mm_payment.dealsinglefile(uploadfilepath, d)
+                if st.session_state['reporttype'] == '平台仓租':
+                    s, m = dataextract_mm_storagefeesmf.dealsinglefile(uploadfilepath, d)
+                if st.session_state['reporttype'] == '平台物流费':
+                    s, m = dataextract_mm_mastersheetmf.dealsinglefile(uploadfilepath, d)
             if st.session_state['channel'] == '独立站':
                 if st.session_state['reporttype'] == '订单':
                     s, m = dataextract_shopify_order.dealsinglefile(uploadfilepath, d)
@@ -237,6 +242,10 @@ with tab2:
             df_check=dataextract_mm_return.selectbatch(d)
         elif st.session_state['reporttype'] == '回款':
             df_check=dataextract_mm_payment.selectbatch(d)
+        elif st.session_state['reporttype'] == '平台仓租':
+            df_check=dataextract_mm_storagefeesmf.selectbatch(d)
+        elif st.session_state['reporttype'] == '平台物流费':
+            df_check=dataextract_mm_mastersheetmf.selectbatch(d)
     elif st.session_state['channel'] == '独立站':
         if st.session_state['reporttype'] == '订单':
             df_check=dataextract_shopify_order.selectbatch(d)
@@ -319,6 +328,10 @@ with tab2:
                 s, m = dataextract_mm_return.deletebatch(batchid)
             if st.session_state['reporttype'] == '回款':
                 s, m = dataextract_mm_payment.deletebatch(batchid)
+            if st.session_state['reporttype'] == '平台仓租':
+                s, m = dataextract_mm_storagefeesmf.deletebatch(batchid)
+            if st.session_state['reporttype'] == '平台物流费':
+                s, m = dataextract_mm_mastersheetmf.deletebatch(batchid)
         if st.session_state['channel'] == '独立站':
             if st.session_state['reporttype'] == '订单':
                 s, m = dataextract_shopify_order.deletebatch(batchid)
