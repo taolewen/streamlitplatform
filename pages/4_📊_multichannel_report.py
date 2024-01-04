@@ -14,7 +14,7 @@ from analyzelogics.multichannelreport import dataextract_wf_order_shipped, datae
     dataextract_shopify_order, dataextract_shopify_ad1, dataextract_shopify_ad2, \
     dataextract_cd_paymentdetail_settlement, dataextract_shein_order, dataextract_shein_payment, \
     dataextract_mm_storagefeesmf, dataextract_mm_mastersheetmf
-from analyzelogics.multichannelreport.attr_get import get_option
+from analyzelogics.multichannelreport.attr_get import get_option, get_week, get_qijian, get_periodrange
 
 if "channel" not in st.session_state:
     st.session_state["channel"] = None
@@ -26,31 +26,37 @@ if "country" not in st.session_state:
     st.session_state["country"] = None
 if "store" not in st.session_state:
     st.session_state["store"] = None
+if "periodrange" not in st.session_state:
+    st.session_state["periodrange"] = None
 if "week" not in st.session_state:
     st.session_state["week"] = None
 if "qijian" not in st.session_state:
     st.session_state["qijian"] = None
 if "addcoldict" not in st.session_state:
     st.session_state["addcoldict"] = None
-col1,col2=st.columns(2)
+
+
+
+col1,col2,col3=st.columns(3)
+
 with col1:
-    # st.session_state["week"]=st.selectbox('week',get_option(st.session_state["channel"])['week'])
-    st.session_state["week"]=st.text_input('week')
-
+    st.session_state["week"]=st.selectbox('week',get_week()['week'])
+    # st.session_state["week"]=st.text_input('week')
 with col2:
+    st.session_state["periodrange"]=st.text_input('periodrange',value=None if not st.session_state["week"] else get_periodrange(st.session_state["week"]),disabled=True)
+with col3:
     # st.session_state["qijian"]=st.selectbox('qijian',get_option(st.session_state["channel"])['qijian'])
-    st.session_state["qijian"]=st.text_input('qijian')
+    st.session_state["qijian"]=st.text_input('qijian',value=None if not st.session_state["week"] else get_qijian(st.session_state["week"]),disabled=True)
 
 
-if st.session_state["week"]:
-    try:
-        if not (len(str(st.session_state['week'])) == 8 or len(str(st.session_state['week'])) == 6):
-            raise 'week请输入6或8位整数,例：202306或20230702'
-        st.session_state['week'] = int(st.session_state['week'])
-    except Exception  as e:
-        st.write(e)
-        # Multiline_txt = values['multiline'] + '\n' + str('week请输入6或8位整数,例：202306或20230702')
-        # window.Element('multiline').Update(Multiline_txt)
+# if st.session_state["week"]:
+#     try:
+#         if not (len(str(st.session_state['week'])) == 8 or len(str(st.session_state['week'])) == 6):
+#             raise 'week请输入6或8位整数,例：202306或20230702'
+#         st.session_state['week'] = int(st.session_state['week'])
+#     except Exception  as e:
+#         st.write(e)
+
 
 if st.session_state["qijian"]:
     try:
