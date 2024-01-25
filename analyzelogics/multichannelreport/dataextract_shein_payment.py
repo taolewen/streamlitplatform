@@ -91,11 +91,11 @@ def deletebatch(batchid):
 def dealsinglefile(path,attrjson):
     try:
         batchid=getuid()
-        name=['业务单号','对应订单号','账单类型','收支类型','对应账单编号','业务单完成时间','可申请结算时间','结算完成日期','商品数量',
-              '商品总额','优惠券金额','活动优惠金额','佣金','履约服务费','备货作业费','服务费','税费','应收金额','结算金额','消费税']
+        name=['业务单号', '对应订单号', '账单类型', '收支类型', '对应账单编号', '生成日期', '发起结算日期', '结算完成日期', '商品数量',
+               '商品总额', '优惠券金额', '活动优惠金额', '佣金', '履约服务费', '备货作业费','退货处理费', '服务费', '税费', '应收金额', '结算金额', '消费税']
 
         # df=pd.read_excel(path,sheet_name='soges MF-退款')
-        df = pd.read_excel(path, skiprows=2,names = name)
+        df = pd.read_excel(path, skiprows=2,usecols='A:U',names = name)
         # df.to_csv('fdfd0.csv')
         # print(df)
         df['area'] = attrjson['area']
@@ -107,8 +107,8 @@ def dealsinglefile(path,attrjson):
         # df.to_csv('fdfd.csv')
 
         df=df[['area','country','store','week','qijian',
-               '业务单号', '对应订单号', '账单类型', '收支类型', '对应账单编号', '业务单完成时间', '可申请结算时间', '结算完成日期', '商品数量',
-               '商品总额', '优惠券金额', '活动优惠金额', '佣金', '履约服务费', '备货作业费', '服务费', '税费', '应收金额', '结算金额', '消费税',
+               '业务单号', '对应订单号', '账单类型', '收支类型', '对应账单编号', '生成日期', '发起结算日期', '结算完成日期', '商品数量',
+               '商品总额', '优惠券金额', '活动优惠金额', '佣金', '履约服务费', '备货作业费','退货处理费', '服务费', '税费', '应收金额', '结算金额', '消费税',
                 "batchid"
         ]]
 
@@ -128,8 +128,6 @@ if __name__ == '__main__':
     # }
     # dealsinglefile('E:\pythonws\pythonws\pythonws\playwrighttest\data_proceed\csvs\wfremittance\Wayfair_Remittance_4640701.xlsx',attrjson)
     # # dealsinglefile('E:\pythonws\pythonws\pythonws\playwrighttest\data_proceed\csvs\cdpaymentdetail\\NSD-payment_details_export_139494.xlsx',attrjson)
-
-
 
     attrjson={
         'area': 'eu',
