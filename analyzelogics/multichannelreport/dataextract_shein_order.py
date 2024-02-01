@@ -96,7 +96,7 @@ def dealsinglefile(path,attrjson):
               '货号','规格','卖家SKU','SHEIN_SKU','SKC','商品ID','商品状态','库存标识','换货标识','换货原因','被换商品ID','是否锁定','分单时间','要求签收时间',
               '运单号','卖家包裹','卖家币种','商品价格','消费税','预计收入']
         # df=pd.read_excel(path,sheet_name='soges MF-退款')
-        df = pd.read_excel(path, names = name)
+        df = pd.read_excel(path,usecols='A:AE', names = name)
         # df.to_csv('fdfd0.csv')
         # print(df)
         df['area'] = attrjson['area']
