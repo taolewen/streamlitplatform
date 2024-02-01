@@ -86,9 +86,9 @@ def get_option(channel):
         },
         'shein': {
             'reporttype': ['订单', '回款'],
-            'country': ['US', ''],
-            'area': ['US', ''],
-            'store': ['Shein-US','']
+            'country': ['US', 'DE'],
+            'area': ['US', 'EU'],
+            'store': ['Shein-US','Shein-EU']
 
         },
     }
