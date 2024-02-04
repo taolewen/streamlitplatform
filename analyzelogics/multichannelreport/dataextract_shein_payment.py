@@ -95,7 +95,7 @@ def dealsinglefile(path,attrjson):
                '商品总额', '优惠券金额', '活动优惠金额', '佣金', '履约服务费', '备货作业费','退货处理费', '服务费', '税费', '应收金额', '结算金额', '消费税']
 
         # df=pd.read_excel(path,sheet_name='soges MF-退款')
-        df = pd.read_excel(path, skiprows=2,usecols='A:U',names = name)
+        df = pd.read_excel(path, header=1,usecols='A:U',names = name)
         # df.to_csv('fdfd0.csv')
         # print(df)
         df['area'] = attrjson['area']
