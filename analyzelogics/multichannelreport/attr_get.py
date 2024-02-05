@@ -67,7 +67,7 @@ def get_option(channel):
             'reporttype': ['广告','订单','退款','回款','平台仓租','平台物流费'],
             'country': ['FR','DE'],
             'area': ['EU'],
-            'store': ['MM-2','MM-3','MM-3-DE','MM-3-MF','MM-HEMQ']
+            'store': ['MM-2','MM-3','MM-3-DE','MM-3-MF','MM-HEMQ','MM-HEMQ-MF']
 
         },
         'walmart': {
