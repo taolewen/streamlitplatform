@@ -6,7 +6,7 @@ import streamlit as st
 import tempfile
 
 from analyzelogics.multichannelreport import dataextract_wf_order_shipped, dataextract_wf_advertise, \
-    dataextract_wf_remittance, dataextract_wf_logisticsinvoice, dataextract_wf_curcharges, dataextract_wm_order, \
+    dataextract_wf_remittance,dataextract_wf_remittance_new, dataextract_wf_logisticsinvoice, dataextract_wf_curcharges, dataextract_wm_order, \
     dataextract_wm_ad, dataextract_wm_order_jd, dataextract_wm_payment, dataextract_wm_return, \
     dataextract_wm_settlement, dataextract_cd_orderextract, dataextract_cd_paymentdetail_returnmoney, \
     dataextract_ebay_trans, \
@@ -131,6 +131,8 @@ with tab1:
                     s, m = dataextract_wf_advertise.dealsinglefile(uploadfilepath, d)
                 if st.session_state['reporttype'] == '付款':
                     s, m = dataextract_wf_remittance.dealsinglefile(uploadfilepath, d)
+                if st.session_state['reporttype'] == '付款_新':
+                    s, m = dataextract_wf_remittance_new.dealsinglefile(uploadfilepath, d)
                 if st.session_state['reporttype'] == '物流发票':
                     s, m = dataextract_wf_logisticsinvoice.dealsinglefile(uploadfilepath, d)
                 if st.session_state['reporttype'] == 'CG发货订单':
@@ -210,6 +212,8 @@ with tab2:
             df_check=dataextract_wf_advertise.selectbatch(d)
         elif st.session_state['reporttype'] == '付款':
             df_check=dataextract_wf_remittance.selectbatch(d)
+        elif st.session_state['reporttype'] == '付款_新':
+            df_check=dataextract_wf_remittance_new.selectbatch(d)
         elif st.session_state['reporttype'] == '物流发票':
             df_check=dataextract_wf_logisticsinvoice.selectbatch(d)
         elif st.session_state['reporttype'] == 'CG发货订单':
@@ -296,6 +300,8 @@ with tab2:
                 s, m = dataextract_wf_advertise.deletebatch(batchid)
             if st.session_state['reporttype'] == '付款':
                 s, m = dataextract_wf_remittance.deletebatch(batchid)
+            if st.session_state['reporttype'] == '付款_新':
+                s, m = dataextract_wf_remittance_new.deletebatch(batchid)
             if st.session_state['reporttype'] == '物流发票':
                 s, m = dataextract_wf_logisticsinvoice.deletebatch(batchid)
             if st.session_state['reporttype'] == 'CG发货订单':

@@ -12,7 +12,7 @@ from dateutil import parser
 import pandas as pd
 
 # 显示所有列
-from openpyxl import load_workbook
+from openpyxl import load_workbook, Workbook
 from sqlalchemy import create_engine
 
 
@@ -24,7 +24,7 @@ db = st.secrets["mysql"]['database']
 connstr = f"mysql+pymysql://{user[0]}:%s@{host[0]}:3306/{db}?charset=utf8" % quote_plus(f'{password[0]}')
 engine = create_engine(connstr)
 pd.set_option('display.max_columns', None)
-reporttype='dataextract_wf_remittance'
+reporttype='dataextract_wf_remittance_new'
 
 def getuid():
     uid = str(uuid.uuid4())
@@ -37,14 +37,20 @@ def updatebatch(attrjson,batchid,path):
                                 db=st.secrets["mysql"]['database'])
     cursor = conn.cursor()
     sql = f"""insert newchannel_batchinfo (batchid,reporttype,path,area,country,week,store,qijian) values 
-    ('{batchid}','{reporttype}','{path}','{attrjson['area'].upper()}','{(attrjson['country']).upper()}',
+    ('{batchid}','{reporttype}','{path}','{attrjson['area'].upper()}','{(attrjson['country']).upper() if attrjson['country'] else ''}',
     '{attrjson['week']}','{attrjson['store'].upper()}','{attrjson['qijian']}')"""
     cursor.execute(sql)
     conn.commit()
     cursor.close()
     conn.close()
-def selectbatch():
-    sql = f"""select * from newchannel_batchinfo where reporttype='{reporttype}' order by createdate desc"""
+def selectbatch(attrjson):
+    sql = f"""select * from newchannel_batchinfo where reporttype='{reporttype}' 
+    {f'''and area='{attrjson['area']}' ''' if attrjson['area'] else ''}
+    {f'''and country='{attrjson['country']}' ''' if attrjson['country'] else ''}
+    {f'''and store='{attrjson['store']}' ''' if attrjson['store'] else ''}
+    {f'''and week='{attrjson['week']}' ''' if attrjson['week'] else ''}
+    {f'''and qijian='{attrjson['qijian']}' ''' if attrjson['qijian'] else ''}
+    order by createdate desc"""
     df=pd.read_sql(sql,con=connstr)
     dl=df.to_dict('records')
     strlist=[]
@@ -56,7 +62,16 @@ def selectbatch():
         str=f"{d['createdate']}_{filename}_{d['area']}_{d['country']}_{d['store']}_{d['week']}_{d['batchid']}"
         # print(str)
         strlist.append(str)
-    return strlist
+    def getfilename(x):
+        try:
+            return x.split('/')[-1]
+        except:
+            return 'none'
+    df['filename']=df.apply(lambda x:getfilename(x.path),axis=1)
+    df=df.drop('path', axis=1)
+    df['delete']=False
+    df=df[['delete','area','country','qijian','week','store','filename','createdate','reporttype','batchid']]
+    return df
 def deletebatch(batchid):
     try:
         conn = pymysql.connect(host=st.secrets["mysql"]['host'],
@@ -75,6 +90,11 @@ def deletebatch(batchid):
             cursor.execute(sql3)
         except:
             traceback.print_exc()
+        try:
+            sql9 = f"""delete from  newchannel_wf_earlypay_vendor_us where batchid = '{batchid}' """
+            cursor.execute(sql9)
+        except:
+            traceback.print_exc()
         sql4 = f"""delete from  newchannel_wf_earlypay_detail_us where batchid = '{batchid}' """
         cursor.execute(sql4)
         sql5 = f"""delete from  newchannel_wf_earlypay_detail_eu where batchid = '{batchid}' """
@@ -85,9 +105,44 @@ def deletebatch(batchid):
         return 1,''
     except:
         return 2,traceback.format_exc()
+
+def csv_to_xlsx_pd(sourcePath:str,savePath:str,encode='utf-8'):
+    """将csv 转为 excel（.xlsx格式）
+    如果不需要可以把计时相关代码删除
+    Args:
+        sourcePath:str 来源文件路径
+        savePath:str 保存文件路径，需要包含保存的文件名，文件名需要是 xlsx 格式的
+        encode='utf-8' 默认编码，可以改为需要的编码如gbk
+    """
+    print('开始处理%s' % sourcePath)
+    curr_time = datetime.datetime.now()
+    print(curr_time)
+
+    f = open(sourcePath, 'r', encoding=encode)
+    # 创建一个workbook 设置编码
+    workbook = Workbook()
+    # 创建一个worksheet
+    worksheet = workbook.active
+    workbook.title = 'sheet'
+
+    for line in f:
+        row = line.split(',')
+        worksheet.append(row)
+        # if row[0].endswith('00'):    # 每一百行打印一次
+        #     print(line, end="")
+
+    workbook.save(savePath)
+    # print('处理完毕')
+    # curr_time2 = datetime.datetime.now()
+    # print(curr_time2-curr_time)
+
 def dealsinglefile(path,attrjson):
     dfvendor=None
     try:
+        # path=csvpath.replace('.csv','.xlsx')
+        # csv_to_xlsx_pd(csvpath,path)
+
+
         batchid=getuid()
 
         excel=load_workbook(path)
@@ -108,19 +163,8 @@ def dealsinglefile(path,attrjson):
             blocklist[currentl].append(i+1)
         print(blocklist)
 
-        blocklist1={}#北美
-        currentl=1
-        for i,cell in enumerate(table['C']):
-            if not blocklist1.get(currentl):
-                blocklist1[currentl]=[]
-            # print(i+1,cell.value)
-            if cell.value is None:
-                currentl=currentl+1
-                continue
-            blocklist1[currentl].append(i+1)
-        print(blocklist1)
 
-        blocklist2={} #欧洲
+        blocklist2={} # 获取total
         currentl=1
         for i,cell in enumerate(table['I']):
             if not blocklist2.get(currentl):
@@ -132,50 +176,158 @@ def dealsinglefile(path,attrjson):
             blocklist2[currentl].append(i+1)
         print(blocklist2)
 
+        sqlorder=f'''select store,week,PO_Number,Item_Number,Quantity 
+                    from newchannel_wf_ordershipped where 
+                    store='{attrjson['store']}'
+                    '''
+        df_order=pd.read_sql(sqlorder,con=engine)
+        def getorderqty(orderid,sku):
+            return df_order.loc[(df_order['PO_Number']==orderid)&(df_order['Item_Number']==sku)]['Quantity'].values[0]
 
         if attrjson['area'].upper() =='US':
-            creditsdf=pd.DataFrame(columns=['po','credate','sku','qty','amount'])
-            damageallowancerate, damageallowanceamount, earlypaydiscountrate, earlypaydiscountamount ,\
-            jossmainallowancefordamagesrate,jossmainallowancefordamagesamount,jossmainearlypaydiscountrate,jossmainearlypaydiscountamount,\
-            Castlegate_Fulfillment_Services,total= None, 0, None, 0,None, 0, None, 0, 0,0
+            rown=blocklist[3]
+            print(rown)
+            names=['invoice','po','invoice_date','product_amount','wfcaallowancefordamages','wfallowancefordamages','wfearlypaydiscount','shipping','other','taxvat','paymentamount','busniess','ordertype']
+            df=pd.read_excel(path,names=names,skiprows=rown[0]-1,skipfooter=tablemaxrow-rown[-1])
+            # df.to_csv('remittance_test.csv')
+            df['wfallowancefordamages']=df.apply(lambda x:x.wfcaallowancefordamages+x.wfallowancefordamages,axis=1)
+            df = df.drop('wfcaallowancefordamages', axis=1)
+            taxvat=df['taxvat'].sum()
+            creditshipping=df.loc[df['shipping']<0,:]['shipping'].sum()
+            creditproductamount=df.loc[df['product_amount']<0,:]['product_amount'].sum()
+
+            print('tax>>'+str(taxvat))
+            print('creditshipping>>'+str(creditshipping))
+            print('creditproductamount>>'+str(creditproductamount))
+
+            creditsttl=creditshipping+creditproductamount
+            creditsdfconcat=df[['po','invoice_date','product_amount','shipping','taxvat']]
+            def ifgreat0then0(x):
+                if x>0:
+                    return 0
+                else:
+                    return x
+
+            creditsdfconcat['product_amount']=creditsdfconcat['product_amount'].apply(lambda x:ifgreat0then0(x))
+            creditsdfconcat['shipping']=creditsdfconcat['shipping'].apply(lambda x:ifgreat0then0(x))
+            creditsdfconcat['credits']=creditsdfconcat.apply(lambda x: x.product_amount+x.shipping,axis=1)
+            creditsdfconcat['qty']=creditsdfconcat.apply(lambda x:1 if x.credits !=0 else 0,axis=1)
+            creditsdfconcat['sku']='None'
+            creditsdfconcat.rename(columns={'invoice_date':'credate'},inplace=True)
+            creditsdfconcat=creditsdfconcat[['po','credate','sku','qty','credits','taxvat']]
+            earlypaydiscountamount=df['wfearlypaydiscount'].sum()
+            damageallowanceamount=df['wfallowancefordamages'].sum()
+            jossmainallowancefordamagesrate = 0
+            jossmainallowancefordamagesamount = 0
+            jossmainearlypaydiscountrate = 0
+            jossmainearlypaydiscountamount = 0
+            Castlegate_Fulfillment_Services=0
+
+
 
             for key in blocklist.keys():
                 if len(blocklist[key])!=0 and key >=3:
 
-                    # print(table.cell(row=blocklist.get(key)[0],column=1).value)
-                    if table.cell(row=blocklist.get(key)[0],column=1).value=='Wayfair Allowance for Damages/ Defects':
-                        print('Wayfair Allowance for Damages/ Defects')
-                        for i in blocklist.get(key):
-                            if table.cell(row=i, column=1).value.startswith('Wayfair Allowance for Damages'):
-                                damageallowancerate=table.cell(row=i, column=3).value
-                                damageallowanceamount=table.cell(row=i, column=4).value
-
-                            if table.cell(row=i, column=1).value.startswith('Wayfair Early Pay Discount'):
-                                earlypaydiscountrate=table.cell(row=i, column=3).value
-                                earlypaydiscountamount=table.cell(row=i, column=4).value
-
-                            if table.cell(row=i, column=1).value.startswith('Joss & Main Allowance for Damages/ Defects'):
-                                jossmainallowancefordamagesrate=table.cell(row=i, column=3).value
-                                jossmainallowancefordamagesamount=table.cell(row=i, column=4).value
-
-                            if table.cell(row=i, column=1).value.startswith('Joss & Main Early Pay Discount'):
-                                jossmainearlypaydiscountrate=table.cell(row=i, column=3).value
-                                jossmainearlypaydiscountamount=table.cell(row=i, column=4).value
-
-
                     if table.cell(row=blocklist.get(key)[0],column=1).value=='Vendor Services:':
-                        print('Vendor Services')
-                        Castlegate_Fulfillment_Services=0
-                        for i in blocklist.get(key):
-                            if table.cell(row=i, column=2).value is not None:
-                                if table.cell(row=i, column=2).value.startswith('Castlegate Fulfillment Services'):
-                                    Castlegate_Fulfillment_Services=Castlegate_Fulfillment_Services+table.cell(row=i, column=4).value
+                        rown1 = blocklist[key]
+                        print(rown1)
+                        dfvendor = pd.read_excel(path, skiprows=rown1[1] - 1, skipfooter=tablemaxrow - rown1[-1])
+                        print(dfvendor)
+                        dfvendor.rename(columns={'Invoice #': 'invoice', 'Program Type': 'program_type',
+                                                 'Invoice Date': 'invoice_date', 'Description': 'desc',
+                                                 'Amount': 'amount'}, inplace=True)
+                        dfvendor = dfvendor[['invoice', 'program_type', 'invoice_date', 'desc', 'amount']]
 
-                    if table.cell(row=blocklist.get(key)[0], column=1).value == 'Credit' or table.cell(row=blocklist.get(key)[0], column=1).value == 'Deduction':
+                    if table.cell(row=blocklist.get(key)[0], column=1).value == 'Credit' or table.cell(row=blocklist.get(key)[0], column=1).value =='Deduction':
                         print('Credit')
                         po=table.cell(row=blocklist.get(key)[0], column=2).value
                         date=table.cell(row=blocklist.get(key)[0], column=3).value
-                        amount=table.cell(row=blocklist.get(key)[0], column=4).value
+                        amount=table.cell(row=blocklist.get(key)[0], column=11).value
+                        # print(po,date,amount)
+                        sku,qty=None,None
+
+                        for i in blocklist.get(key):
+                            if table.cell(row=i, column=1).value.startswith('Item'):
+                                sku=table.cell(row=i, column=1).value.split(':')[1].replace(' ','')
+                                # qty=table.cell(row=i, column=2).value.split(':')[1].replace(' ','')
+                                #数量从order去同订单号同sku
+                                qty=getorderqty(po,sku)
+
+                        creditsdfconcat.loc[len(creditsdfconcat.index)] = [po,date,sku,qty,amount,0]
+
+            #取total
+            total=0
+            for key in blocklist2.keys():
+                if len(blocklist2[key])!=0:
+                    if table.cell(row=blocklist2.get(key)[0], column=9).value == 'Total (USD): ':
+                        print('total')
+                        total=table.cell(row=blocklist2.get(key)[0], column=10).value
+            # if blocklist[7]!=[]:
+            #     if table.cell(row=blocklist[7][0], column=1).value == 'Vendor Services:':
+            #
+            #         rown1=blocklist[7]
+            #         print(rown1)
+            #         dfvendor=pd.read_excel(path,skiprows=rown1[1]-1,skipfooter=tablemaxrow-rown1[-1])
+            #         print(dfvendor)
+            #         dfvendor.rename(columns={'Invoice #':'invoice','Program Type':'program_type','Invoice Date':'invoice_date','Description':'desc','Amount':'amount'},inplace=True)
+            #         dfvendor=dfvendor[['invoice','program_type','invoice_date','desc','amount']]
+        elif attrjson['area'].upper() =='CA':
+            rown=blocklist[4]
+            print(rown)
+            names=['invoice','po','invoice_date','product_amount','wfallowancefordamages','wfearlypaydiscount','shipping','other','taxvat','paymentamount','busniess','ordertype']
+            df=pd.read_excel(path,names=names,skiprows=rown[0]-1,skipfooter=tablemaxrow-rown[-1])
+            # df.to_csv('remittance_test.csv')
+            taxvat=df['taxvat'].sum()
+            creditshipping=df.loc[df['shipping']<0,:]['shipping'].sum()
+            creditproductamount=df.loc[df['product_amount']<0,:]['product_amount'].sum()
+
+            print('tax>>'+str(taxvat))
+            print('creditshipping>>'+str(creditshipping))
+            print('creditproductamount>>'+str(creditproductamount))
+
+            creditsttl=creditshipping+creditproductamount
+            creditsdfconcat=df[['po','invoice_date','product_amount','shipping','taxvat']]
+            def ifgreat0then0(x):
+                if x>0:
+                    return 0
+                else:
+                    return x
+
+            creditsdfconcat['product_amount']=creditsdfconcat['product_amount'].apply(lambda x:ifgreat0then0(x))
+            creditsdfconcat['shipping']=creditsdfconcat['shipping'].apply(lambda x:ifgreat0then0(x))
+            creditsdfconcat['credits']=creditsdfconcat.apply(lambda x: x.product_amount+x.shipping,axis=1)
+            creditsdfconcat['qty']=creditsdfconcat.apply(lambda x:1 if x.credits !=0 else 0,axis=1)
+            creditsdfconcat['sku']='None'
+            creditsdfconcat.rename(columns={'invoice_date':'credate'},inplace=True)
+            creditsdfconcat=creditsdfconcat[['po','credate','sku','qty','credits','taxvat']]
+            earlypaydiscountamount=df['wfearlypaydiscount'].sum()
+            damageallowanceamount=df['wfallowancefordamages'].sum()
+            jossmainallowancefordamagesrate = 0
+            jossmainallowancefordamagesamount = 0
+            jossmainearlypaydiscountrate = 0
+            jossmainearlypaydiscountamount = 0
+            Castlegate_Fulfillment_Services=0
+
+
+
+            for key in blocklist.keys():
+                if len(blocklist[key])!=0 and key >=3:
+
+                    if table.cell(row=blocklist.get(key)[0],column=1).value=='Vendor Services:':
+                        rown1 = blocklist[key]
+                        print(rown1)
+                        dfvendor = pd.read_excel(path, skiprows=rown1[1] - 1, skipfooter=tablemaxrow - rown1[-1])
+                        print(dfvendor)
+                        dfvendor.rename(columns={'Invoice #': 'invoice', 'Program Type': 'program_type',
+                                                 'Invoice Date': 'invoice_date', 'Description': 'desc',
+                                                 'Amount': 'amount'}, inplace=True)
+                        dfvendor = dfvendor[['invoice', 'program_type', 'invoice_date', 'desc', 'amount']]
+
+                    if table.cell(row=blocklist.get(key)[0], column=1).value == 'Credit' or table.cell(row=blocklist.get(key)[0], column=1).value =='Deduction':
+                        print('Credit')
+                        po=table.cell(row=blocklist.get(key)[0], column=2).value
+                        date=table.cell(row=blocklist.get(key)[0], column=3).value
+                        amount=table.cell(row=blocklist.get(key)[0], column=10).value
                         # print(po,date,amount)
                         sku,qty=None,None
 
@@ -184,38 +336,28 @@ def dealsinglefile(path,attrjson):
                                 sku=table.cell(row=i, column=1).value.split(':')[1].replace(' ','')
                                 qty=table.cell(row=i, column=2).value.split(':')[1].replace(' ','')
 
-                        creditsdf.loc[len(creditsdf.index)] = [po,date,sku,qty,amount]
-            # print(creditsdf)
-            # creditsttl0=creditsdf.loc[creditsdf['amount']<0,:]['amount'].sum()
-            # print('退货>>'+str(creditsttl0))
+                        creditsdfconcat.loc[len(creditsdfconcat.index)] = [po,date,sku,qty,amount,0]
 
-            for key in blocklist1.keys():
-                if len(blocklist1[key]) != 0 and key >= 3:
-                    if table.cell(row=blocklist1.get(key)[0], column=3).value == 'Total:':
+            #取total
+            total=0
+            for key in blocklist2.keys():
+                if len(blocklist2[key])!=0:
+                    if table.cell(row=blocklist2.get(key)[0], column=9).value == 'Total (USD): ':
                         print('total')
-                        total=table.cell(row=blocklist1.get(key)[0], column=4).value
-
-
-
-            # print(damageallowanceamount, damageallowancerate, earlypaydiscountamount, earlypaydiscountrate,total)
-
-            rown=blocklist[2]
-            # print(rown)
-            names=['invoice','po','date','amount','storeid','ordertype']
-            df=pd.read_excel(path,names=names,skiprows=rown[0]-1,skipfooter=tablemaxrow-rown[-1])
-            # df.to_csv('remittance_test.csv')
-            creditsdf2=df.loc[df['amount']<0,:][['po','date','amount']]
-            creditsdf2['sku']='None'
-            creditsdf2['qty']=1
-            creditsdf2.rename(columns={'date':'credate'},inplace=True)
-            creditsdf2=creditsdf2[['po','credate','sku','qty','amount']]
-            creditsdfconcat=pd.concat([creditsdf,creditsdf2])
-            creditsdfconcat['taxvat']=0
-            creditsdfconcat.rename(columns={'amount':'credits'},inplace=True)
+                        total=table.cell(row=blocklist2.get(key)[0], column=10).value
+            # if blocklist[7]!=[]:
+            #     if table.cell(row=blocklist[7][0], column=1).value == 'Vendor Services:':
+            #
+            #         rown1=blocklist[7]
+            #         print(rown1)
+            #         dfvendor=pd.read_excel(path,skiprows=rown1[1]-1,skipfooter=tablemaxrow-rown1[-1])
+            #         print(dfvendor)
+            #         dfvendor.rename(columns={'Invoice #':'invoice','Program Type':'program_type','Invoice Date':'invoice_date','Description':'desc','Amount':'amount'},inplace=True)
+            #         dfvendor=dfvendor[['invoice','program_type','invoice_date','desc','amount']]
 
         else:
 
-            rown=blocklist[4]
+            rown=blocklist[3]
             print(rown)
             names=['invoice','po','invoice_date','product_amount','wfallowancefordamages','wfearlypaydiscount','shipping','other','taxvat','paymentamount','busniess','ordertype']
             df=pd.read_excel(path,names=names,skiprows=rown[0]-1,skipfooter=tablemaxrow-rown[-1])
@@ -307,6 +449,14 @@ def dealsinglefile(path,attrjson):
             df['qijian'] = attrjson['qijian']
             df['batchid'] = batchid
             df.to_sql('newchannel_wf_earlypay_detail_us', con=engine, if_exists='append', index=False, index_label=False)
+            if dfvendor is not None:
+                dfvendor['area'] = attrjson['area']
+                dfvendor['country'] = attrjson['country']
+                dfvendor['store'] = attrjson['store']
+                dfvendor['week'] = attrjson['week']
+                dfvendor['qijian'] = attrjson['qijian']
+                dfvendor['batchid'] = batchid
+                dfvendor.to_sql('newchannel_wf_earlypay_vendor_us', con=engine, if_exists='append', index=False, index_label=False)
 
         else:
             df['area'] = attrjson['area']
@@ -342,6 +492,10 @@ def dealsinglefile(path,attrjson):
 
         dfearlypay.to_sql('newchannel_wf_earlypay', con=engine, if_exists='append', index=False, index_label=False)
         updatebatch(attrjson,batchid,path)
+        # try:
+        #     os.remove(path)
+        # except:
+        #     traceback.print_exc()
 
         return 1,''
     except:
