@@ -182,7 +182,11 @@ def dealsinglefile(path,attrjson):
                     '''
         df_order=pd.read_sql(sqlorder,con=engine)
         def getorderqty(orderid,sku):
-            return df_order.loc[(df_order['PO_Number']==orderid)&(df_order['Item_Number']==sku)]['Quantity'].values[0]
+            df=df_order.loc[(df_order['PO_Number']==orderid)&(df_order['Item_Number']==sku)]
+            if len(df)==0:
+                return 0
+            else:
+                return df['Quantity'].values[0]
 
         if attrjson['area'].upper() =='US':
             rown=blocklist[3]
