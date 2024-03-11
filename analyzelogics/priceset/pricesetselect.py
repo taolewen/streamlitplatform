@@ -80,7 +80,9 @@ def get_erchengmode(platform=None,area=None,erchengfulfilltype=None):
                     union all
                     select ftype from 
                     (
-                    SELECT 'fbm' ectype,erp_sku,'None' platform,area,country,concat('fbm_',concat(delivery_merchant,channel)) ftype,erchengfee_total erchengfee_total_notbusy,erchengfee_total erchengfee_total_busy FROM `priceset_fbm_result`
+                    SELECT 'fbm' ectype,erp_sku,'None' platform,area,country,concat('fbm_',concat(delivery_merchant,channel)) ftype,erchengfee_total erchengfee_total_notbusy,erchengfee_total erchengfee_total_busy 
+                    FROM `priceset_fbm_result`
+                    where source='zdfc'
                     ) m
                     where 1=1
                     and ectype='{erchengfulfilltype}'
@@ -192,11 +194,11 @@ def cal_data(platform=None,area=None,country=None,erpsku=None,usesku=None,month=
                                 select erp_sku,ec ercheng from 
                                 (
                                 SELECT 'fbm' ectype,erp_sku,'None' platform,area,country,concat('fbm_',concat(delivery_merchant,channel)) ftype,
-                                (case when ('{platform}'='WF' or '{platform}' = 'VC_PO' or '{platform}' = 'VC_DF') and '{erchengmode}'='fbm_德威_zone6Fedex' then outstorefee+2
-                                 when ('{platform}'='WF' or '{platform}' = 'VC_PO' or '{platform}' = 'VC_DF') and '{erchengmode}'='fbm_FALDPD' then outstorefee+1
-                                 when ('{platform}'='WF' or '{platform}' = 'VC_PO' or '{platform}' = 'VC_DF') and '{erchengmode}'='fbm_西邮GLS' then outstorefee+1
-                                  when ('{platform}' = 'VC_DI')  then 0
-                                else erchengfee_total end ) ec FROM `priceset_fbm_result`
+                                (case 
+                                 when ('{platform}'='WF' or '{platform}' = 'VC_PO' or '{platform}' = 'VC_DF') and '{erchengmode}'='fbm_defaultdefault' and ('{area}'='US' or '{area}' = 'CA') then outstorefee+2
+                                 when ('{platform}'='WF' or '{platform}' = 'VC_PO' or '{platform}' = 'VC_DF') and '{erchengmode}'='fbm_defaultdefault' and ('{area}'='EU' ) then outstorefee+1
+                                 when ('{platform}' = 'VC_DI')  then 0
+                                else erchengfee_total end ) ec FROM `priceset_fbm_result` where source='zdfc'
                                 ) m
                                 where ectype='{erchengfulfilltype}'
                                 {"" if not area else f"and area = '{area}'"}
