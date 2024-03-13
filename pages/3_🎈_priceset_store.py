@@ -442,6 +442,15 @@ st.session_state['excelfilepath']=None
 st.session_state['excelfilename']=None
 def outputexcel(df_m,username,tempname):
     df_out=df_m
+    # df_m['站点']=df_m.pop('站点')
+    df_out=df_out[['erp_sku','使用sku','平台','区域','国家',
+            '高','长','宽','体积','采购价',
+            '转仓费','仓租费率','膨胀系数','折扣比例','汇率',
+            '采购价_原币','转仓费_实际','仓租','头程系数','头程',
+            '头程_原币','二程','二程_实际','合并费率','广告投放',
+            '预计定价','数量','前台毛利','前台毛利率','0%利润价',
+            '5%利润价','10%利润价','站点']]
+
     # df_out.to_excel('df_out.xlsx')
     filename=f'''{username}_{tempname}.xlsx'''
     filepath=f'tempfiles\\priceset\\{filename}'
@@ -450,11 +459,11 @@ def outputexcel(df_m,username,tempname):
     workbook = writer.book
     worksheet = writer.sheets['Sheet1']
 
-    worksheet[f'ac2'] = f'=(aa2-(p2+q2+r2+u2+w2)-(x2/100+z2/100)*aa2)*ab2'
-    worksheet[f'ad2'] = f'=ab2/(aa2*ab2)'
-    worksheet[f'ae2'] = f'=(p2+q2+r2+u2+w2)/(1-(z2/100+x2/100))'
-    worksheet[f'af2'] = f'=(p2+q2+r2+u2+w2)/(1-(0.05+z2/100+x2/100))'
-    worksheet[f'ag2'] = f'=(p2+q2+r2+u2+w2)/(1-(0.1+z2/100+x2/100))'
+    worksheet[f'ab2'] = f'=(z2-(p2+q2+r2+u2+w2)-(x2/100+y2/100)*z2)*aa2'
+    worksheet[f'ac2'] = f'=ab2/(z2*aa2)'
+    worksheet[f'ad2'] = f'=(p2+q2+r2+u2+w2)/(1-(y2/100+x2/100))'
+    worksheet[f'ae2'] = f'=(p2+q2+r2+u2+w2)/(1-(0.05+y2/100+x2/100))'
+    worksheet[f'af2'] = f'=(p2+q2+r2+u2+w2)/(1-(0.1+y2/100+x2/100))'
     # 保存 Excel 文件
     writer._save()
     st.session_state['excelfilepath']=filepath
