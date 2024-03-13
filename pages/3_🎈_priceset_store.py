@@ -450,11 +450,11 @@ def outputexcel(df_m,username,tempname):
     workbook = writer.book
     worksheet = writer.sheets['Sheet1']
 
-    worksheet[f'ab2'] = f'=(z2-(p2+q2+r2+u2+w2)-(x2/100+y2/100)*z2)*aa2'
-    worksheet[f'ac2'] = f'=ab2/(z2*aa2)'
-    worksheet[f'ad2'] = f'=(p2+q2+r2+u2+w2)/(1-(y2/100+x2/100))'
-    worksheet[f'ae2'] = f'=(p2+q2+r2+u2+w2)/(1-(0.05+y2/100+x2/100))'
-    worksheet[f'af2'] = f'=(p2+q2+r2+u2+w2)/(1-(0.1+y2/100+x2/100))'
+    worksheet[f'ac2'] = f'=(z2-(p2+q2+r2+u2+w2)-(x2/100+y2/100)*z2)*aa2'
+    worksheet[f'ad2'] = f'=ab2/(z2*aa2)'
+    worksheet[f'ae2'] = f'=(p2+q2+r2+u2+w2)/(1-(y2/100+x2/100))'
+    worksheet[f'af2'] = f'=(p2+q2+r2+u2+w2)/(1-(0.05+y2/100+x2/100))'
+    worksheet[f'ag2'] = f'=(p2+q2+r2+u2+w2)/(1-(0.1+y2/100+x2/100))'
     # 保存 Excel 文件
     writer._save()
     st.session_state['excelfilepath']=filepath
