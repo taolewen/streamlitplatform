@@ -10,7 +10,26 @@ import streamlit as st
 from numpy import float64
 from sqlalchemy import create_engine
 
+@st.cache_data
+def get_price_gplus(erchengfulfilltype,country):
+    mysqlconn = pymysql.connect(host=st.secrets["mysql"]['host'],
+                                user=st.secrets["mysql"]['user'],
+                                password=st.secrets["mysql"]['password'],
+                                db=st.secrets["mysql"]['database'])
+    df_price_gplus = pd.read_sql(sql='''select 
+            distinct 站点,substring_index(站点,':',-1) country,erp_sku,
+    		case when 配送渠道='买家自配送' then 'fbm' when 配送渠道='亚马逊配送' then 'fba' else '' end 配送渠道,原价 预计定价
+            from
+            gplus_commodity_management
+    		where id in (select min(id) id from gplus_commodity_management group by 站点,erp_sku,substring_index(站点,':',-1))
+        ''',con=mysqlconn)
+    df_price_gplus=df_price_gplus.loc[df_price_gplus['配送渠道']==erchengfulfilltype]
+    df_price_gplus=df_price_gplus.loc[df_price_gplus['country']==country]
 
+    df_price_gplus.drop(columns=['配送渠道'],inplace=True)
+    df_price_gplus.drop(columns=['country'],inplace=True)
+
+    return df_price_gplus
 @st.cache_data
 def get_platform():
     mysqlconn = pymysql.connect(host=st.secrets["mysql"]['host'],
