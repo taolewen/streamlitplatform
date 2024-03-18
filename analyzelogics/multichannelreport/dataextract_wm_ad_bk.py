@@ -96,10 +96,10 @@ def dealsinglefile(path,attrjson):
 
         df=pd.read_csv(path)
         df.rename(columns={"Units Sold":"Units_Sold",
+                           "Conversion Rate":"Conversion_Rate",
+                           "Conversion Rate (Units Sold Based)":"Conversion_Rate",
                            "Total Attr. Sales Revenue":"Total_Attr_Sales_Revenue",
-                           "Ad Spend":"Ad_Spend",
-                           "In-store Attributed Sales (Beta)":"instoreattrsales"
-                           },inplace=True)
+                           "Ad Spend":"Ad_Spend"},inplace=True)
         df['area'] = attrjson['area']
         df['country'] = attrjson['country']
         df['store'] = attrjson['store']
@@ -107,7 +107,7 @@ def dealsinglefile(path,attrjson):
         df['qijian'] = attrjson['qijian']
         df['Ad_Spend'].fillna('0',inplace=True)
         df=df[['area','country','store','week','qijian',
-            "Date","Impressions","Clicks","CTR","Total_Attr_Sales_Revenue","Ad_Spend","RoAS","instoreattrsales"
+            "Date","Impressions","Clicks","Units_Sold","CTR","Conversion_Rate","Total_Attr_Sales_Revenue","Ad_Spend","RoAS"
         ]]
         df['batchid']=batchid
 
