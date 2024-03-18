@@ -65,7 +65,7 @@ def get_month():
                                 user=st.secrets["mysql"]['user'],
                                 password=st.secrets["mysql"]['password'],
                                 db=st.secrets["mysql"]['database'])
-    df=pd.read_sql(f'''select 月份 month from priceset_toucheng_relate group by 月份''',con=mysqlconn)
+    df=pd.read_sql(f'''select 月份 month from priceset_toucheng_relate group by 月份 order by 月份 desc''',con=mysqlconn)
     return df['month'].to_list()
 @st.cache_data
 def get_touchengmode(area=None):
