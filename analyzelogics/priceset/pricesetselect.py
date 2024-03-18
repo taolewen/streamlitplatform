@@ -18,7 +18,8 @@ def get_price_gplus(erchengfulfilltype,country):
                                 db=st.secrets["mysql"]['database'])
     df_price_gplus = pd.read_sql(sql='''select 
             distinct 站点,substring_index(站点,':',-1) country,erp_sku,
-    		case when 配送渠道='买家自配送' then 'fbm' when 配送渠道='亚马逊配送' then 'fba' else '' end 配送渠道,原价 预计定价
+    		case when 配送渠道='买家自配送' then 'fbm' when 配送渠道='亚马逊配送' then 'fba' else '' end 配送渠道,
+    		(case when 优惠价=0 or 优惠价 is null then 原价 else 优惠价 end) 预计定价
             from
             gplus_commodity_management
     		where id in (select min(id) id from gplus_commodity_management group by 站点,erp_sku,substring_index(站点,':',-1))
