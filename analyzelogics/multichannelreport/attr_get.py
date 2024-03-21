@@ -45,7 +45,7 @@ def get_option(channel):
             'reporttype':['已发货订单','广告','付款','付款_新','物流发票','CG发货订单'],
             'country':[],
             'area': ['US','EU','CA'],
-            'store': ['WF-EU-2','WF-EU-5','WF-US-1','WF-US-2','WF-US-5','WF-CA-1']
+            'store': ['WF-EU-2','WF-EU-5','WF-US-1','WF-US-2','WF-US-5','WF-CA-1','WF-Wellynap']
 
 
         },
@@ -74,7 +74,7 @@ def get_option(channel):
             'reporttype': ['订单','广告','订单—jd','付款payment','退货','结算(运费)'],
             'country': ['US'],
             'area': ['US'],
-            'store': ['WM-JD','WM-2','WM-5','WM-6','WM-7']
+            'store': ['WM-JD','WM-2','WM-5','WM-6','WM-7','WM-Wellynap']
 
         },
         '独立站': {

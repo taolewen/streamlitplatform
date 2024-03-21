@@ -10,27 +10,132 @@ import streamlit as st
 from numpy import float64
 from sqlalchemy import create_engine
 
-@st.cache_data
+@st.cache_data#价格
 def get_price_gplus(erchengfulfilltype,country):
     mysqlconn = pymysql.connect(host=st.secrets["mysql"]['host'],
                                 user=st.secrets["mysql"]['user'],
                                 password=st.secrets["mysql"]['password'],
                                 db=st.secrets["mysql"]['database'])
-    df_price_gplus = pd.read_sql(sql='''select 
-            distinct 站点,substring_index(站点,':',-1) country,erp_sku,
-    		case when 配送渠道='买家自配送' then 'fbm' when 配送渠道='亚马逊配送' then 'fba' else '' end 配送渠道,
-    		(case when 优惠价=0 or 优惠价 is null then 原价 else 优惠价 end) 预计定价
+    df_price_gplus = pd.read_sql(sql='''
+            select storerela.store_country 站点,commo.country,commo.erp_sku,commo.配送渠道,commo.预计定价
             from
-            gplus_commodity_management
-    		where id in (select min(id) id from gplus_commodity_management group by 站点,erp_sku,substring_index(站点,':',-1))
+            (
+                select 
+                distinct 站点,substring_index(站点,':',-1) country,erp_sku,
+                case when 配送渠道='买家自配送' then 'fbm' when 配送渠道='亚马逊配送' then 'fba' else '' end 配送渠道,
+                (case when 优惠价=0 or 优惠价 is null then 原价 else 优惠价 end) 预计定价
+                from
+                gplus_commodity_management
+                where id in (select min(id) id from gplus_commodity_management group by 站点,erp_sku,substring_index(站点,':',-1))
+    		) commo
+    		left join
+    		(
+    		    select concat(concat(store,':'),country) store,store_country from gplus_store_relate
+    		) storerela
+				    		on commo.站点=storerela.store
+
         ''',con=mysqlconn)
     df_price_gplus=df_price_gplus.loc[df_price_gplus['配送渠道']==erchengfulfilltype]
     df_price_gplus=df_price_gplus.loc[df_price_gplus['country']==country]
-
+    df_price_gplus['预计定价']=df_price_gplus['预计定价'].astype('float64')
     df_price_gplus.drop(columns=['配送渠道'],inplace=True)
     df_price_gplus.drop(columns=['country'],inplace=True)
     return df_price_gplus
 
+@st.cache_data#店铺
+def get_price_gplus_store(erchengfulfilltype,country):
+    mysqlconn = pymysql.connect(host=st.secrets["mysql"]['host'],
+                                user=st.secrets["mysql"]['user'],
+                                password=st.secrets["mysql"]['password'],
+                                db=st.secrets["mysql"]['database'])
+    df_price_gplus = pd.read_sql(sql='''    
+            select storerela.store_country 站点,commo.country,commo.erp_sku,commo.配送渠道,commo.预计定价
+            from
+            (
+                select 
+                distinct 站点,substring_index(站点,':',-1) country,erp_sku,
+                case when 配送渠道='买家自配送' then 'fbm' when 配送渠道='亚马逊配送' then 'fba' else '' end 配送渠道,
+                (case when 优惠价=0 or 优惠价 is null then 原价 else 优惠价 end) 预计定价
+                from
+                gplus_commodity_management
+                where id in (select min(id) id from gplus_commodity_management group by 站点,erp_sku,substring_index(站点,':',-1))
+    		) commo
+    		left join
+    		(
+    		    select concat(concat(store,':'),country) store,store_country from gplus_store_relate
+    		) storerela
+				    		on commo.站点=storerela.store
+
+        ''',con=mysqlconn)
+    df_price_gplus=df_price_gplus.loc[df_price_gplus['配送渠道']==erchengfulfilltype]
+    df_price_gplus=df_price_gplus.loc[df_price_gplus['country']==country]
+    df_price_gplus['预计定价']=df_price_gplus['预计定价'].astype('float64')
+    df_price_gplus.drop(columns=['配送渠道'],inplace=True)
+    df_price_gplus.drop(columns=['country'],inplace=True)
+    df_price_gplus=df_price_gplus.groupby(['站点','erp_sku']).sum().reset_index()
+    df=df_price_gplus[['站点','erp_sku']]
+    return df
+
+@st.cache_data#海外仓仓租
+def get_storerent_oversea(country):
+    mysqlconn = pymysql.connect(host=st.secrets["mysql"]['host'],
+                                user=st.secrets["mysql"]['user'],
+                                password=st.secrets["mysql"]['password'],
+                                db=st.secrets["mysql"]['database'])
+    rentfee_sql=f'''select erpsku erp_sku,store_kw 站点,round(avg(storefee_daily_per),4) invrent
+    from amz_inv_aging_cal_iabl
+    where create_date in
+	(select max(create_date) from amz_inv_aging_cal group by left(create_date,10))
+	and country ='{country}'
+    group by erpsku,store_kw
+    '''
+    df_rentfee=pd.read_sql(rentfee_sql,con=mysqlconn)
+    return df_rentfee
+@st.cache_data#fba仓租
+def get_storerent_fba():
+    mysqlconn = pymysql.connect(host=st.secrets["mysql"]['host'],
+                                user=st.secrets["mysql"]['user'],
+                                password=st.secrets["mysql"]['password'],
+                                db=st.secrets["mysql"]['database'])
+    rentfee_sql='''
+        select 站点,erp_sku,case when 销售数量!=0 then avg(月度仓储费/销售数量) else 0 end invrent 
+        from date_range_report_month
+        where 月份 = left(DATE_SUB(CURDATE(), INTERVAL 30 DAY),7)
+        group by 站点,erp_sku
+    '''
+    df_rentfee=pd.read_sql(rentfee_sql,con=mysqlconn)
+    return df_rentfee
+
+
+@st.cache_data  # 广告
+def get_spfee(country):
+    mysqlconn = pymysql.connect(host=st.secrets["mysql"]['host'],
+                                user=st.secrets["mysql"]['user'],
+                                password=st.secrets["mysql"]['password'],
+                                db=st.secrets["mysql"]['database'])
+    spfee_sql = f'''
+        select erp_sku,store 站点,avg(花费) adcost
+        from sp
+        where left(create_date,10) > DATE_SUB(CURDATE(), INTERVAL 30 DAY) and country='{country}'
+        group by erp_sku,store
+    '''
+    df_spfee = pd.read_sql(spfee_sql, con=mysqlconn)
+    return df_spfee
+
+@st.cache_data  # 折扣
+def get_discountfee():
+    mysqlconn = pymysql.connect(host=st.secrets["mysql"]['host'],
+                                user=st.secrets["mysql"]['user'],
+                                password=st.secrets["mysql"]['password'],
+                                db=st.secrets["mysql"]['database'])
+    discountfee_sql = '''
+        select 站点,erp_sku,-avg(折扣) discount 
+        from date_range_report_month
+        where left(createtime,10) > DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+        group by 站点,erp_sku
+    '''
+    df_discountfee = pd.read_sql(discountfee_sql, con=mysqlconn)
+    return df_discountfee
 
 @st.cache_data
 def get_platform():
@@ -146,9 +251,8 @@ def cal_data(platform=None,area=None,country=None,erpsku=None,usesku=None,month=
                                 user=st.secrets["mysql"]['user'],
                                 password=st.secrets["mysql"]['password'],
                                 db=st.secrets["mysql"]['database'])
-
     df_base=pd.read_sql(f'''
-                    select erp_sku,usesku,platform,area,country,height,lenth,width,uv,purchaseprice,transinv_fee,invfee invfee_rate,expansion_rate,discount_rate
+                    select erp_sku,usesku,platform,area,country,height,lenth,width,uv,purchaseprice,transinv_fee,invfee invfee_rate,expansion_rate
                     from priceset_base_result
                     where 1=1
                     {"" if not platform else f"and platform = '{platform}'"}
@@ -169,6 +273,7 @@ def cal_data(platform=None,area=None,country=None,erpsku=None,usesku=None,month=
     df_m['exchange_rate'].fillna(1,inplace=True)
 
     df_m['purchaseprice_o']=df_m.apply(lambda x:x.purchaseprice/x.exchange_rate,axis=1)
+
     def cal_transinvfee_act(x):#转仓费实际逻辑
         if erchengfulfilltype=='fbm':
             return 0
@@ -187,7 +292,26 @@ def cal_data(platform=None,area=None,country=None,erpsku=None,usesku=None,month=
     # df_m.to_csv('test111.csv')
     # print('invrentrate')
     # print(type(invrentrate))
-    df_m['invfee']=df_m.apply(lambda x:x.invfee_rate*x.uv*invrentrate,axis=1)
+    # df_m['invfee']=df_m.apply(lambda x:x.invfee_rate*x.uv*invrentrate,axis=1)
+
+    df_skustore=get_price_gplus_store(erchengfulfilltype,country)
+    df_m=pd.merge(df_m,df_skustore,on=['erp_sku'],how='left')
+    #仓租
+    if erchengfulfilltype == 'fbm':
+        df_invfee=get_storerent_oversea(country)
+        df_m=pd.merge(df_m,df_invfee,on=['erp_sku','站点'],how='left')
+        df_m['invfee']=df_m['invrent']
+        df_m.drop(columns=['invrent'], inplace=True)
+    else:
+        df_invfee=get_storerent_fba()
+        df_m=pd.merge(df_m,df_invfee,on=['erp_sku','站点'],how='left')
+        df_m['invfee']=df_m['invrent']
+        df_m.drop(columns=['invrent'], inplace=True)
+    #折扣discount
+    df_discount = get_discountfee()
+    df_m = pd.merge(df_m, df_discount, on=['erp_sku', '站点'], how='left')
+
+
     df_toucheng=pd.read_sql(f'''
                             select 区域 area,头程系数 from priceset_toucheng_relate
                             where 1=1
@@ -229,6 +353,12 @@ def cal_data(platform=None,area=None,country=None,erpsku=None,usesku=None,month=
     df_m=pd.merge(df_m,df_ercheng,on=['erp_sku'],how='left')
     df_m['ercheng_act']=df_m.apply(lambda x:0 if platform=='VC_DI' else x.ercheng,axis=1)
     df_m['rate_combine']=vatrate+waverate+commissionrate+otherrate
+    df_m['rate_combine_VAT税率']=vatrate
+    df_m['rate_combine_波动系数']=waverate
+    df_m['rate_combine_佣金费率']=commissionrate
+    df_m['rate_combine_其他费用']=otherrate
+    # print(df_m)
+    # df_m.to_csv('testkkk.csv')
     return df_m
 
 @st.cache_data

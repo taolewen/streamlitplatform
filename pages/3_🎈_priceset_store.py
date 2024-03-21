@@ -7,8 +7,9 @@ import streamlit_echarts
 from pyecharts.charts import Bar
 from pyecharts import options as opts
 from pyecharts.globals import ThemeType
-from analyzelogics.priceset.pricesetselect import get_platform, get_area, get_country, get_month, get_touchengmode, \
-    get_erchengmode, get_feerate, cal_data, get_testitems, update_testitems, get_price_gplus
+from analyzelogics.priceset.pricesetselect_store import get_platform, get_area, get_country, get_month, \
+    get_touchengmode, \
+    get_erchengmode, get_feerate, cal_data, get_testitems, update_testitems, get_price_gplus, get_spfee
 from analyzelogics.priceset.tempupdate import savetemp2db, get_user, get_temp, updatetempindb, get_one_temp
 from dbs import  mysqlconn
 from streamlit_modal import Modal
@@ -90,7 +91,7 @@ else:
 
 
 df_price_gplus=get_price_gplus(erchengfulfilltype,country)
-
+df_ad_gplus=get_spfee(country)
 
 
 col1, col2= st.columns(2)
@@ -194,9 +195,11 @@ with st.sidebar:
 
     else:
         df_s=cal_data(platform=platform,area=area,country=country,erpsku=erpsku,usesku=usesku,month=month,touchengmode=touchengmode,isbusy=isbusy,erchengfulfilltype=erchengfulfilltype,erchengmode=erchengmode,
-                    invrentrate=float(invrentrate),commissionrate=float(commissionrate),vatrate=float(vatrate),otherrate=float(otherrate),waverate=float(waverate))[['erp_sku']]
-        df_s=pd.merge(df_s,df_price_gplus,on=['erp_sku'],how='left')
-        df_s['广告投放'] = None
+                    invrentrate=float(invrentrate),commissionrate=float(commissionrate),vatrate=float(vatrate),otherrate=float(otherrate),waverate=float(waverate))[['erp_sku','站点']]
+        df_s=pd.merge(df_s,df_price_gplus,on=['erp_sku','站点'],how='left')
+        df_s=pd.merge(df_s,df_ad_gplus,on=['erp_sku','站点'],how='left')
+        df_s['广告投放'] = df_s.apply(lambda x:round(x.adcost/x.预计定价,4)*100 if pd.notna(x.预计定价) and pd.notna(x.adcost) else None,axis=1)
+        df_s.drop(columns=['adcost'],inplace=True)
         df_s['数量'] = 1
         # df_s['前台毛利'] = None
         isbatchset = st.checkbox('统一设置参数')
@@ -216,25 +219,27 @@ with tab1:
     if ispaste:
         df_m=cal_data(platform=platform,area=area,country=country,erpsku=erpsku,usesku=usesku,month=month,touchengmode=touchengmode,isbusy=isbusy,erchengfulfilltype=erchengfulfilltype,erchengmode=erchengmode,
                         invrentrate=float(invrentrate),commissionrate=float(commissionrate),vatrate=float(vatrate),otherrate=float(otherrate),waverate=float(waverate))
-        df_m=pd.merge(df_s1,df_m,on=['erp_sku'],how='left')
+        df_m=pd.merge(df_s1,df_m,on=['erp_sku','站点'],how='left')
         df_m['预计定价']=df_m['预计定价'].astype('float64')
         df_m['广告投放']=df_m['广告投放'].astype('float64')
         df_m['前台毛利']=df_m.apply(lambda x:None if x.广告投放==None or x.预计定价==None else
-            round(((x.预计定价)-(x.purchaseprice_o+x.transinv_fee_act+x.invfee+x.头程_原币+x.ercheng_act)-(x.rate_combine/100+(x.广告投放)/100)*(x.预计定价))*x.数量,4)
+            round(((x.预计定价)-(x.purchaseprice_o+x.transinv_fee_act+x.invfee+x.头程_原币+x.ercheng_act+x.discount)-(x.rate_combine/100+(x.广告投放)/100)*(x.预计定价))*x.数量,4)
                                                                         ,axis=1)
         df_m['前台毛利率']=df_m.apply(lambda x:None if x.广告投放==None or x.预计定价==None else
             round(x.前台毛利/(x.预计定价*x.数量),4)*100
                                                                         ,axis=1)
         df_m['0%利润价'] = df_m.apply(lambda x: None if x.广告投放 == None or x.预计定价 == None else
-        (x.purchaseprice_o+x.transinv_fee_act+x.invfee+x.头程_原币+x.ercheng_act)/(1-(x.广告投放/100+x.rate_combine/100))
+        (x.purchaseprice_o+x.transinv_fee_act+x.invfee+x.头程_原币+x.ercheng_act+x.discount)/(1-(x.广告投放/100+x.rate_combine/100))
                                    , axis=1)
         df_m['5%利润价'] = df_m.apply(lambda x: None if x.广告投放 == None or x.预计定价 == None else
-        (x.purchaseprice_o+x.transinv_fee_act+x.invfee+x.头程_原币+x.ercheng_act)/(1-(0.05+x.广告投放/100+x.rate_combine/100))
+        (x.purchaseprice_o+x.transinv_fee_act+x.invfee+x.头程_原币+x.ercheng_act+x.discount)/(1-(0.05+x.广告投放/100+x.rate_combine/100))
                                    , axis=1)
         df_m['10%利润价'] = df_m.apply(lambda x: None if x.广告投放 == None or x.预计定价 == None else
-        (x.purchaseprice_o+x.transinv_fee_act+x.invfee+x.头程_原币+x.ercheng_act)/(1-(0.1+x.广告投放/100+x.rate_combine/100))
+        (x.purchaseprice_o+x.transinv_fee_act+x.invfee+x.头程_原币+x.ercheng_act+x.discount)/(1-(0.1+x.广告投放/100+x.rate_combine/100))
                                    , axis=1)
-        df_m.rename(columns={'usesku':'使用sku','platform':'平台','area':'区域','country':'国家','height':'高','lenth':'长','width':'宽','uv':'体积','expansion_rate':'膨胀系数','exchange_rate':'汇率','purchaseprice':'采购价','purchaseprice_o':'采购价_原币','transinv_fee':'转仓费','invfee_rate':'仓租费率','invfee':'仓租',
+        df_m.rename(columns={'usesku':'使用sku','platform':'平台','area':'区域','country':'国家','height':'高','lenth':'长','width':'宽',
+                             'uv':'体积','expansion_rate':'膨胀系数','discount':'折扣','exchange_rate':'汇率','purchaseprice':'采购价',
+                             'purchaseprice_o':'采购价_原币','transinv_fee':'转仓费','invfee_rate':'仓租费率','invfee':'仓租',
                              'ercheng':'二程','rate_combine':'合并费率'},inplace=True)
         df_m=df_m[['erp_sku','使用sku','平台','区域','国家','站点','广告投放','预计定价','数量','前台毛利','前台毛利率','0%利润价','5%利润价','10%利润价']]
         st.dataframe(df_m,
@@ -268,26 +273,28 @@ with tab1:
     else:
         df_m=cal_data(platform=platform,area=area,country=country,erpsku=erpsku,usesku=usesku,month=month,touchengmode=touchengmode,isbusy=isbusy,erchengfulfilltype=erchengfulfilltype,erchengmode=erchengmode,
                         invrentrate=float(invrentrate),commissionrate=float(commissionrate),vatrate=float(vatrate),otherrate=float(otherrate),waverate=float(waverate))
-        df_m=pd.merge(df_m,df_s,on=['erp_sku'],how='left')
+        df_m=pd.merge(df_m,df_s,on=['erp_sku','站点'],how='left')
         df_m['预计定价']=df_m['预计定价'].astype('float64')
         df_m['广告投放']=df_m['广告投放'].astype('float64')
 
         df_m['前台毛利']=df_m.apply(lambda x:None if x.广告投放==None or x.预计定价==None else
-            round(((x.预计定价)-(x.purchaseprice_o+x.transinv_fee_act+x.invfee+x.头程_原币+x.ercheng_act)-(x.rate_combine/100+(x.广告投放)/100)*(x.预计定价))*x.数量,4)
+            round(((x.预计定价)-(x.purchaseprice_o+x.transinv_fee_act+x.invfee+x.头程_原币+x.ercheng_act+x.discount)-(x.rate_combine/100+(x.广告投放)/100)*(x.预计定价))*x.数量,4)
                                                                         ,axis=1)
         df_m['前台毛利率']=df_m.apply(lambda x:None if x.广告投放==None or x.预计定价==None or x.预计定价==0 else
             round(x.前台毛利/(x.预计定价*x.数量),4)*100
                                                                         ,axis=1)
         df_m['0%利润价'] = df_m.apply(lambda x: None if x.广告投放 == None or x.预计定价 == None else
-        (x.purchaseprice_o+x.transinv_fee_act+x.invfee+x.头程_原币+x.ercheng_act)/(1-(x.广告投放/100+x.rate_combine/100))
+        (x.purchaseprice_o+x.transinv_fee_act+x.invfee+x.头程_原币+x.ercheng_act+x.discount)/(1-(x.广告投放/100+x.rate_combine/100))
                                    , axis=1)
         df_m['5%利润价'] = df_m.apply(lambda x: None if x.广告投放 == None or x.预计定价 == None else
-        (x.purchaseprice_o+x.transinv_fee_act+x.invfee+x.头程_原币+x.ercheng_act)/(1-(0.05+x.广告投放/100+x.rate_combine/100))
+        (x.purchaseprice_o+x.transinv_fee_act+x.invfee+x.头程_原币+x.ercheng_act+x.discount)/(1-(0.05+x.广告投放/100+x.rate_combine/100))
                                    , axis=1)
         df_m['10%利润价'] = df_m.apply(lambda x: None if x.广告投放 == None or x.预计定价 == None else
-        (x.purchaseprice_o+x.transinv_fee_act+x.invfee+x.头程_原币+x.ercheng_act)/(1-(0.1+x.广告投放/100+x.rate_combine/100))
+        (x.purchaseprice_o+x.transinv_fee_act+x.invfee+x.头程_原币+x.ercheng_act+x.discount)/(1-(0.1+x.广告投放/100+x.rate_combine/100))
                                    , axis=1)
-        df_m.rename(columns={'usesku':'使用sku','platform':'平台','area':'区域','country':'国家','height':'高','lenth':'长','width':'宽','uv':'体积','expansion_rate':'膨胀系数','exchange_rate':'汇率','purchaseprice':'采购价','purchaseprice_o':'采购价_原币','transinv_fee':'转仓费','invfee_rate':'仓租费率','invfee':'仓租',
+        df_m.rename(columns={'usesku':'使用sku','platform':'平台','area':'区域','country':'国家','height':'高','lenth':'长','width':'宽',
+                             'uv':'体积','expansion_rate':'膨胀系数','discount':'折扣','exchange_rate':'汇率','purchaseprice':'采购价',
+                             'purchaseprice_o':'采购价_原币','transinv_fee':'转仓费','invfee_rate':'仓租费率','invfee':'仓租',
                              'ercheng':'二程','rate_combine':'合并费率'},inplace=True)
         df_m=df_m[['erp_sku','使用sku','平台','区域','国家','站点','广告投放','预计定价','数量','前台毛利','前台毛利率','0%利润价','5%利润价','10%利润价']]
         st.dataframe(df_m,
@@ -334,25 +341,27 @@ with tab2:
     if ispaste:
         df_m=cal_data(platform=platform,area=area,country=country,erpsku=erpsku,usesku=usesku,month=month,touchengmode=touchengmode,isbusy=isbusy,erchengfulfilltype=erchengfulfilltype,erchengmode=erchengmode,
                         invrentrate=float(invrentrate),commissionrate=float(commissionrate),vatrate=float(vatrate),otherrate=float(otherrate),waverate=float(waverate))
-        df_m=pd.merge(df_s1,df_m,on=['erp_sku'],how='left')
+        df_m=pd.merge(df_s1,df_m,on=['erp_sku','站点'],how='left')
         df_m['预计定价']=df_m['预计定价'].astype('float64')
         df_m['广告投放']=df_m['广告投放'].astype('float64')
         df_m['前台毛利']=df_m.apply(lambda x:None if x.广告投放==None or x.预计定价==None else
-            round(((x.预计定价)-(x.purchaseprice_o+x.transinv_fee_act+x.invfee+x.头程_原币+x.ercheng_act)-(x.rate_combine/100+(x.广告投放)/100)*(x.预计定价))*x.数量,4)
+            round(((x.预计定价)-(x.purchaseprice_o+x.transinv_fee_act+x.invfee+x.头程_原币+x.ercheng_act+x.discount)-(x.rate_combine/100+(x.广告投放)/100)*(x.预计定价))*x.数量,4)
                                                                         ,axis=1)
         df_m['前台毛利率']=df_m.apply(lambda x:None if x.广告投放==None or x.预计定价==None else
             round(x.前台毛利/(x.预计定价*x.数量),4)*100
                                                                         ,axis=1)
         df_m['0%利润价'] = df_m.apply(lambda x: None if x.广告投放 == None or x.预计定价 == None else
-        (x.purchaseprice_o+x.transinv_fee_act+x.invfee+x.头程_原币+x.ercheng_act)/(1-(x.广告投放/100+x.rate_combine/100))
+        (x.purchaseprice_o+x.transinv_fee_act+x.invfee+x.头程_原币+x.ercheng_act+x.discount)/(1-(x.广告投放/100+x.rate_combine/100))
                                    , axis=1)
         df_m['5%利润价'] = df_m.apply(lambda x: None if x.广告投放 == None or x.预计定价 == None else
-        (x.purchaseprice_o+x.transinv_fee_act+x.invfee+x.头程_原币+x.ercheng_act)/(1-(0.05+x.广告投放/100+x.rate_combine/100))
+        (x.purchaseprice_o+x.transinv_fee_act+x.invfee+x.头程_原币+x.ercheng_act+x.discount)/(1-(0.05+x.广告投放/100+x.rate_combine/100))
                                    , axis=1)
         df_m['10%利润价'] = df_m.apply(lambda x: None if x.广告投放 == None or x.预计定价 == None else
-        (x.purchaseprice_o+x.transinv_fee_act+x.invfee+x.头程_原币+x.ercheng_act)/(1-(0.1+x.广告投放/100+x.rate_combine/100))
+        (x.purchaseprice_o+x.transinv_fee_act+x.invfee+x.头程_原币+x.ercheng_act+x.discount)/(1-(0.1+x.广告投放/100+x.rate_combine/100))
                                    , axis=1)
-        df_m.rename(columns={'usesku':'使用sku','platform':'平台','area':'区域','country':'国家','height':'高','lenth':'长','width':'宽','uv':'体积','expansion_rate':'膨胀系数','exchange_rate':'汇率','purchaseprice':'采购价','purchaseprice_o':'采购价_原币','transinv_fee':'转仓费','invfee_rate':'仓租费率','invfee':'仓租',
+        df_m.rename(columns={'usesku':'使用sku','platform':'平台','area':'区域','country':'国家','height':'高','lenth':'长','width':'宽',
+                             'uv':'体积','expansion_rate':'膨胀系数','discount':'折扣','exchange_rate':'汇率','purchaseprice':'采购价','purchaseprice_o':'采购价_原币',
+                             'transinv_fee':'转仓费','invfee_rate':'仓租费率','invfee':'仓租',
                              'ercheng':'二程','rate_combine':'合并费率'},inplace=True)
         # df_m=df_m[['erp_sku','使用sku','平台','区域','国家','广告投放','预计定价','数量','前台毛利','前台毛利率','0%利润价','5%利润价','10%利润价']]
         st.dataframe(df_m,
@@ -384,27 +393,30 @@ with tab2:
     else:
         df_m=cal_data(platform=platform,area=area,country=country,erpsku=erpsku,usesku=usesku,month=month,touchengmode=touchengmode,isbusy=isbusy,erchengfulfilltype=erchengfulfilltype,erchengmode=erchengmode,
                         invrentrate=float(invrentrate),commissionrate=float(commissionrate),vatrate=float(vatrate),otherrate=float(otherrate),waverate=float(waverate))
-        df_m=pd.merge(df_m,df_s,on=['erp_sku'],how='left')
+        df_m=pd.merge(df_m,df_s,on=['erp_sku','站点'],how='left')
         df_m['预计定价']=df_m['预计定价'].astype('float64')
         df_m['广告投放']=df_m['广告投放'].astype('float64')
 
         df_m['前台毛利']=df_m.apply(lambda x:None if x.广告投放==None or x.预计定价==None else
-            round(((x.预计定价)-(x.purchaseprice_o+x.transinv_fee_act+x.invfee+x.头程_原币+x.ercheng_act)-(x.rate_combine/100+(x.广告投放)/100)*(x.预计定价))*x.数量,4)
+            round(((x.预计定价)-(x.purchaseprice_o+x.transinv_fee_act+x.invfee+x.头程_原币+x.ercheng_act+x.discount)-(x.rate_combine/100+(x.广告投放)/100)*(x.预计定价))*x.数量,4)
                                                                         ,axis=1)
         df_m['前台毛利率']=df_m.apply(lambda x:None if x.广告投放==None or x.预计定价==None or x.预计定价==0 else
             round(x.前台毛利/(x.预计定价*x.数量),4)*100
                                                                         ,axis=1)
         df_m['0%利润价'] = df_m.apply(lambda x: None if x.广告投放 == None or x.预计定价 == None else
-        (x.purchaseprice_o+x.transinv_fee_act+x.invfee+x.头程_原币+x.ercheng_act)/(1-(x.广告投放/100+x.rate_combine/100))
+        (x.purchaseprice_o+x.transinv_fee_act+x.invfee+x.头程_原币+x.ercheng_act+x.discount)/(1-(x.广告投放/100+x.rate_combine/100))
                                    , axis=1)
         df_m['5%利润价'] = df_m.apply(lambda x: None if x.广告投放 == None or x.预计定价 == None else
-        (x.purchaseprice_o+x.transinv_fee_act+x.invfee+x.头程_原币+x.ercheng_act)/(1-(0.05+x.广告投放/100+x.rate_combine/100))
+        (x.purchaseprice_o+x.transinv_fee_act+x.invfee+x.头程_原币+x.ercheng_act+x.discount)/(1-(0.05+x.广告投放/100+x.rate_combine/100))
                                    , axis=1)
         df_m['10%利润价'] = df_m.apply(lambda x: None if x.广告投放 == None or x.预计定价 == None else
-        (x.purchaseprice_o+x.transinv_fee_act+x.invfee+x.头程_原币+x.ercheng_act)/(1-(0.1+x.广告投放/100+x.rate_combine/100))
+        (x.purchaseprice_o+x.transinv_fee_act+x.invfee+x.头程_原币+x.ercheng_act+x.discount)/(1-(0.1+x.广告投放/100+x.rate_combine/100))
                                    , axis=1)
-        df_m.rename(columns={'usesku':'使用sku','platform':'平台','area':'区域','country':'国家','height':'高','lenth':'长','width':'宽','uv':'体积','expansion_rate':'膨胀系数','discount_rate':'折扣比例','exchange_rate':'汇率','purchaseprice':'采购价','purchaseprice_o':'采购价_原币','transinv_fee':'转仓费','transinv_fee_act':'转仓费_实际','invfee_rate':'仓租费率','invfee':'仓租',
-                             'ercheng':'二程','ercheng_act':'二程_实际','rate_combine':'合并费率'},inplace=True)
+        df_m.rename(columns={'usesku':'使用sku','platform':'平台','area':'区域','country':'国家','height':'高','lenth':'长','width':'宽',
+                             'uv':'体积','expansion_rate':'膨胀系数','discount':'折扣','exchange_rate':'汇率','purchaseprice':'采购价',
+                             'purchaseprice_o':'采购价_原币','transinv_fee':'转仓费','transinv_fee_act':'转仓费_实际','invfee_rate':'仓租费率','invfee':'仓租',
+                             'ercheng':'二程','ercheng_act':'二程_实际','rate_combine':'合并费率',
+                             'rate_combine_VAT税率':'合并费率_VAT税率','rate_combine_波动系数':'合并费率_波动系数','rate_combine_佣金费率':'合并费率_佣金费率','rate_combine_其他费用':'合并费率_其他费用'},inplace=True)
         # df_m=df_m[['erp_sku','使用sku','平台','区域','国家','广告投放','预计定价','数量','前台毛利','前台毛利率','0%利润价','5%利润价','10%利润价']]
         st.dataframe(df_m,
                      column_config={
@@ -445,11 +457,12 @@ def outputexcel(df_m,username,tempname):
     # df_m['站点']=df_m.pop('站点')
     df_out=df_out[['erp_sku','使用sku','平台','区域','国家',
             '高','长','宽','体积','采购价',
-            '转仓费','仓租费率','膨胀系数','折扣比例','汇率',
+            '转仓费','仓租费率','膨胀系数','折扣','汇率',
             '采购价_原币','转仓费_实际','仓租','头程系数','头程',
             '头程_原币','二程','二程_实际','合并费率','广告投放',
             '预计定价','数量','前台毛利','前台毛利率','0%利润价',
-            '5%利润价','10%利润价','站点']]
+            '5%利润价','10%利润价','站点',
+            '合并费率_VAT税率','合并费率_波动系数','合并费率_佣金费率','合并费率_其他费用']]
 
     # df_out.to_excel('df_out.xlsx')
     filename=f'''{username}_{tempname}.xlsx'''
@@ -459,11 +472,11 @@ def outputexcel(df_m,username,tempname):
     workbook = writer.book
     worksheet = writer.sheets['Sheet1']
 
-    worksheet[f'ab2'] = f'=(z2-(p2+q2+r2+u2+w2)-(x2/100+y2/100)*z2)*aa2'
+    worksheet[f'ab2'] = f'=(z2-(p2+q2+r2+u2+w2+n2)-(x2/100+y2/100)*z2)*aa2'
     worksheet[f'ac2'] = f'=ab2/(z2*aa2)'
-    worksheet[f'ad2'] = f'=(p2+q2+r2+u2+w2)/(1-(y2/100+x2/100))'
-    worksheet[f'ae2'] = f'=(p2+q2+r2+u2+w2)/(1-(0.05+y2/100+x2/100))'
-    worksheet[f'af2'] = f'=(p2+q2+r2+u2+w2)/(1-(0.1+y2/100+x2/100))'
+    worksheet[f'ad2'] = f'=(p2+q2+r2+u2+w2+n2)/(1-(y2/100+x2/100))'
+    worksheet[f'ae2'] = f'=(p2+q2+r2+u2+w2+n2)/(1-(0.05+y2/100+x2/100))'
+    worksheet[f'af2'] = f'=(p2+q2+r2+u2+w2+n2)/(1-(0.1+y2/100+x2/100))'
     # 保存 Excel 文件
     writer._save()
     st.session_state['excelfilepath']=filepath
