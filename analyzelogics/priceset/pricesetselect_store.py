@@ -243,7 +243,7 @@ def get_feerate(ratename,platform=None,country=None):
 
 @st.cache_data
 def cal_data(platform=None,area=None,country=None,erpsku=None,usesku=None,month=None,touchengmode=None,isbusy=None,erchengfulfilltype=None,erchengmode=None,
-            invrentrate=None,commissionrate=None,vatrate=None,otherrate=None,waverate=None
+            commissionrate=None,vatrate=None,otherrate=None,waverate=None
              ):
     isbusydict = {'高峰': 'busy', '非高峰': 'notbusy'}
     isbusy1 = isbusydict[isbusy]

@@ -115,15 +115,17 @@ col1, col2, col3 = st.columns(3)
 with st.container():
 
     with col1:
-        invrentrate=float(st.text_input('仓租系数',value=get_feerate('仓租系数',platform,country)))
-        commissionrate=float(st.text_input('佣金费率',value=get_feerate('佣金比率',platform,country)))
-
-    with col2:
         vatrate=float(st.text_input('VAT税率', value=get_feerate('VAT系数', platform, country)))
         otherrate=float(st.text_input('其他费用',value=get_feerate('其他费用比率',platform,country)))
 
-    with col3:
+
+    with col2:
         waverate=float(st.text_input('波动系数', value=get_feerate('波动系数', platform, country)))
+
+
+    with col3:
+        commissionrate=float(st.text_input('佣金费率',value=get_feerate('佣金比率',platform,country)))
+
         # if st.button('Rerun', key=1):
         #     # print('fdfdfdfdf')
         #     st.experimental_rerun()
@@ -195,7 +197,7 @@ with st.sidebar:
 
     else:
         df_s=cal_data(platform=platform,area=area,country=country,erpsku=erpsku,usesku=usesku,month=month,touchengmode=touchengmode,isbusy=isbusy,erchengfulfilltype=erchengfulfilltype,erchengmode=erchengmode,
-                    invrentrate=float(invrentrate),commissionrate=float(commissionrate),vatrate=float(vatrate),otherrate=float(otherrate),waverate=float(waverate))[['erp_sku','站点']]
+                    commissionrate=float(commissionrate),vatrate=float(vatrate),otherrate=float(otherrate),waverate=float(waverate))[['erp_sku','站点']]
         df_s=pd.merge(df_s,df_price_gplus,on=['erp_sku','站点'],how='left')
         df_s=pd.merge(df_s,df_ad_gplus,on=['erp_sku','站点'],how='left')
         df_s['广告投放'] = df_s.apply(lambda x:round(x.adcost/x.预计定价,4)*100 if pd.notna(x.预计定价) and pd.notna(x.adcost) else None,axis=1)
@@ -218,7 +220,7 @@ with tab1:
 
     if ispaste:
         df_m=cal_data(platform=platform,area=area,country=country,erpsku=erpsku,usesku=usesku,month=month,touchengmode=touchengmode,isbusy=isbusy,erchengfulfilltype=erchengfulfilltype,erchengmode=erchengmode,
-                        invrentrate=float(invrentrate),commissionrate=float(commissionrate),vatrate=float(vatrate),otherrate=float(otherrate),waverate=float(waverate))
+                        commissionrate=float(commissionrate),vatrate=float(vatrate),otherrate=float(otherrate),waverate=float(waverate))
         df_m=pd.merge(df_s1,df_m,on=['erp_sku','站点'],how='left')
         df_m['预计定价']=df_m['预计定价'].astype('float64')
         df_m['广告投放']=df_m['广告投放'].astype('float64')
@@ -272,7 +274,7 @@ with tab1:
 
     else:
         df_m=cal_data(platform=platform,area=area,country=country,erpsku=erpsku,usesku=usesku,month=month,touchengmode=touchengmode,isbusy=isbusy,erchengfulfilltype=erchengfulfilltype,erchengmode=erchengmode,
-                        invrentrate=float(invrentrate),commissionrate=float(commissionrate),vatrate=float(vatrate),otherrate=float(otherrate),waverate=float(waverate))
+                        commissionrate=float(commissionrate),vatrate=float(vatrate),otherrate=float(otherrate),waverate=float(waverate))
         df_m=pd.merge(df_m,df_s,on=['erp_sku','站点'],how='left')
         df_m['预计定价']=df_m['预计定价'].astype('float64')
         df_m['广告投放']=df_m['广告投放'].astype('float64')
@@ -340,7 +342,7 @@ with tab2:
 
     if ispaste:
         df_m=cal_data(platform=platform,area=area,country=country,erpsku=erpsku,usesku=usesku,month=month,touchengmode=touchengmode,isbusy=isbusy,erchengfulfilltype=erchengfulfilltype,erchengmode=erchengmode,
-                        invrentrate=float(invrentrate),commissionrate=float(commissionrate),vatrate=float(vatrate),otherrate=float(otherrate),waverate=float(waverate))
+                        commissionrate=float(commissionrate),vatrate=float(vatrate),otherrate=float(otherrate),waverate=float(waverate))
         df_m=pd.merge(df_s1,df_m,on=['erp_sku','站点'],how='left')
         df_m['预计定价']=df_m['预计定价'].astype('float64')
         df_m['广告投放']=df_m['广告投放'].astype('float64')
@@ -392,7 +394,7 @@ with tab2:
             hide_index=True)
     else:
         df_m=cal_data(platform=platform,area=area,country=country,erpsku=erpsku,usesku=usesku,month=month,touchengmode=touchengmode,isbusy=isbusy,erchengfulfilltype=erchengfulfilltype,erchengmode=erchengmode,
-                        invrentrate=float(invrentrate),commissionrate=float(commissionrate),vatrate=float(vatrate),otherrate=float(otherrate),waverate=float(waverate))
+                        commissionrate=float(commissionrate),vatrate=float(vatrate),otherrate=float(otherrate),waverate=float(waverate))
         df_m=pd.merge(df_m,df_s,on=['erp_sku','站点'],how='left')
         df_m['预计定价']=df_m['预计定价'].astype('float64')
         df_m['广告投放']=df_m['广告投放'].astype('float64')
