@@ -6,14 +6,15 @@ import streamlit as st
 import tempfile
 
 from analyzelogics.multichannelreport import dataextract_wf_order_shipped, dataextract_wf_advertise, \
-    dataextract_wf_remittance,dataextract_wf_remittance_new, dataextract_wf_logisticsinvoice, dataextract_wf_curcharges, dataextract_wm_order, \
+    dataextract_wf_remittance, dataextract_wf_remittance_new, dataextract_wf_logisticsinvoice, \
+    dataextract_wf_curcharges, dataextract_wm_order, \
     dataextract_wm_ad, dataextract_wm_order_jd, dataextract_wm_payment, dataextract_wm_return, \
     dataextract_wm_settlement, dataextract_cd_orderextract, dataextract_cd_paymentdetail_returnmoney, \
     dataextract_ebay_trans, \
     dataextract_ebay_orders, dataextract_mm_order, dataextract_mm_ad, dataextract_mm_return, dataextract_mm_payment, \
     dataextract_shopify_order, dataextract_shopify_ad1, dataextract_shopify_ad2, \
     dataextract_cd_paymentdetail_settlement, dataextract_shein_order, dataextract_shein_payment, \
-    dataextract_mm_storagefeesmf, dataextract_mm_mastersheetmf
+    dataextract_mm_storagefeesmf, dataextract_mm_mastersheetmf, dataextract_os_orders, dataextract_os_payment
 from analyzelogics.multichannelreport.attr_get import get_option, get_week, get_qijian, get_periodrange
 
 if "channel" not in st.session_state:
@@ -66,7 +67,7 @@ if st.session_state["qijian"]:
         st.write(e)
 col1,col2,col3,col4=st.columns(4)
 with col1:
-    st.session_state["channel"]=st.selectbox('渠道',['Ebay', 'CD', 'manomano', 'Wayfair', 'walmart','独立站','shein'])
+    st.session_state["channel"]=st.selectbox('渠道',['Ebay', 'CD', 'manomano', 'Wayfair', 'walmart','独立站','shein','overstock'])
     st.session_state["store"]=st.selectbox('store',get_option(st.session_state["channel"])['store'])
 
 with col2:
@@ -187,6 +188,11 @@ with tab1:
                     s, m = dataextract_shein_order.dealsinglefile(uploadfilepath, d)
                 if st.session_state['reporttype'] == '回款':
                     s, m = dataextract_shein_payment.dealsinglefile(uploadfilepath, d)
+            if st.session_state['channel'] == 'overstock':
+                if st.session_state['reporttype'] == '订单':
+                    s, m = dataextract_os_orders.dealsinglefile(uploadfilepath, d)
+                if st.session_state['reporttype'] == '回款':
+                    s, m = dataextract_os_payment.dealsinglefile(uploadfilepath, d)
             print(s,m)
             delete_uploaded_file(uploadfilepath)
             if s == 1:
@@ -268,7 +274,11 @@ with tab2:
             df_check=dataextract_shein_order.selectbatch(d)
         elif st.session_state['reporttype'] == '回款':
             df_check=dataextract_shein_payment.selectbatch(d)
-
+    elif st.session_state['channel'] == 'overstock':
+        if st.session_state['reporttype'] == '订单':
+            df_check=dataextract_os_orders.selectbatch(d)
+        elif st.session_state['reporttype'] == '回款':
+            df_check=dataextract_os_payment.selectbatch(d)
 
     df_delete=st.data_editor(df_check,    column_config={
         "delete": st.column_config.CheckboxColumn(
@@ -356,6 +366,11 @@ with tab2:
                 s, m = dataextract_shein_order.deletebatch(batchid)
             if st.session_state['reporttype'] == '回款':
                 s, m = dataextract_shein_payment.deletebatch(batchid)
+        if st.session_state['channel'] == 'overstock':
+            if st.session_state['reporttype'] == '订单':
+                s, m = dataextract_os_orders.deletebatch(batchid)
+            if st.session_state['reporttype'] == '回款':
+                s, m = dataextract_os_payment.deletebatch(batchid)
         return s,m
     if not st.session_state['delete'] and len(df_delete.loc[df_delete['delete']==True])!=0:
         st.button('删除',on_click=delete_btn_click)

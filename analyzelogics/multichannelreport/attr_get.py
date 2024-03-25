@@ -89,7 +89,13 @@ def get_option(channel):
             'country': ['US', 'DE'],
             'area': ['US', 'EU'],
             'store': ['Shein-US','Shein-EU']
-
         },
+        'overstock': {
+            'reporttype': ['订单', '回款'],
+            'country': ['US'],
+            'area': ['US'],
+            'store': ['overstock-US']
+        }
+
     }
     return opdict[channel]
