@@ -134,7 +134,7 @@ with tab1:
                     s, m = dataextract_wf_remittance.dealsinglefile(uploadfilepath, d)
                 if st.session_state['reporttype'] == '付款_新':
                     s, m = dataextract_wf_remittance_new.dealsinglefile(uploadfilepath, d)
-                if st.session_state['reporttype'] == '物流发票':
+                if st.session_state['reporttype'] == '仓租&配送费invoice':
                     s, m = dataextract_wf_logisticsinvoice.dealsinglefile(uploadfilepath, d)
                 if st.session_state['reporttype'] == 'CG发货订单':
                     s, m = dataextract_wf_curcharges.dealsinglefile(uploadfilepath, d)

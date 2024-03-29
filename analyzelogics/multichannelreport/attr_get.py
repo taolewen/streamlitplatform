@@ -41,8 +41,8 @@ def get_periodrange(week):
     return str(start_date)+'~'+str(end_date)
 def get_option(channel):
     opdict={
-        'Wayfair':{
-            'reporttype':['已发货订单','广告','付款','付款_新','物流发票','CG发货订单'],
+        'Wayfair':{ #CG发货订单
+            'reporttype':['已发货订单','广告','付款','付款_新','仓租&配送费invoice','CG发货订单','头程invoice'],
             'country':[],
             'area': ['US','EU','CA'],
             'store': ['WF-EU-2','WF-EU-5','WF-US-1','WF-US-2','WF-US-5','WF-CA-1','WF-Wellynap']

@@ -191,20 +191,11 @@ def dealsinglefile(path,attrjson):
         if attrjson['area'].upper() =='US':
             rown=blocklist[3]
             print(rown)
-
-            df=pd.read_excel(path,skiprows=rown[0]-1,skipfooter=tablemaxrow-rown[-1])
-            columns =df.columns
-            if 'Birch Lane Allowance for Damages/ Defects [4.00%]' in columns:
-                names=['invoice','po','invoice_date','product_amount','BirchLaneAllowanceforDamages','wfcaallowancefordamages','wfallowancefordamages','wfearlypaydiscount','shipping','other','taxvat','paymentamount','busniess','ordertype']
-                df.columns=names
-                df['wfallowancefordamages']=df.apply(lambda x:x.BirchLaneAllowanceforDamages+x.wfcaallowancefordamages+x.wfallowancefordamages,axis=1)
-                df = df.drop(['wfcaallowancefordamages','BirchLaneAllowanceforDamages'], axis=1)
-            else:
-                names=['invoice','po','invoice_date','product_amount','wfcaallowancefordamages','wfallowancefordamages','wfearlypaydiscount','shipping','other','taxvat','paymentamount','busniess','ordertype']
-                df.columns=names
-                df['wfallowancefordamages']=df.apply(lambda x:x.wfcaallowancefordamages+x.wfallowancefordamages,axis=1)
-                df = df.drop('wfcaallowancefordamages', axis=1)
-
+            names=['invoice','po','invoice_date','product_amount','wfcaallowancefordamages','wfallowancefordamages','wfearlypaydiscount','shipping','other','taxvat','paymentamount','busniess','ordertype']
+            df=pd.read_excel(path,names=names,skiprows=rown[0]-1,skipfooter=tablemaxrow-rown[-1])
+            # df.to_csv('remittance_test.csv')
+            df['wfallowancefordamages']=df.apply(lambda x:x.wfcaallowancefordamages+x.wfallowancefordamages,axis=1)
+            df = df.drop('wfcaallowancefordamages', axis=1)
             taxvat=df['taxvat'].sum()
             creditshipping=df.loc[df['shipping']<0,:]['shipping'].sum()
             creditproductamount=df.loc[df['product_amount']<0,:]['product_amount'].sum()
