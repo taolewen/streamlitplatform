@@ -220,7 +220,7 @@ with tab2:
             df_check=dataextract_wf_remittance.selectbatch(d)
         elif st.session_state['reporttype'] == '付款_新':
             df_check=dataextract_wf_remittance_new.selectbatch(d)
-        elif st.session_state['reporttype'] == '物流发票':
+        elif st.session_state['reporttype'] == '仓租&配送费invoice':
             df_check=dataextract_wf_logisticsinvoice.selectbatch(d)
         elif st.session_state['reporttype'] == 'CG发货订单':
             df_check=dataextract_wf_curcharges.selectbatch(d)
@@ -312,7 +312,7 @@ with tab2:
                 s, m = dataextract_wf_remittance.deletebatch(batchid)
             if st.session_state['reporttype'] == '付款_新':
                 s, m = dataextract_wf_remittance_new.deletebatch(batchid)
-            if st.session_state['reporttype'] == '物流发票':
+            if st.session_state['reporttype'] == '仓租&配送费invoice':
                 s, m = dataextract_wf_logisticsinvoice.deletebatch(batchid)
             if st.session_state['reporttype'] == 'CG发货订单':
                 s, m = dataextract_wf_curcharges.deletebatch(batchid)
