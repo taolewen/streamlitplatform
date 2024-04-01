@@ -194,16 +194,33 @@ def dealsinglefile(path,attrjson):
 
             df=pd.read_excel(path,skiprows=rown[0]-1,skipfooter=tablemaxrow-rown[-1])
             columns =df.columns
-            if 'Birch Lane Allowance for Damages/ Defects [4.00%]' in columns:
-                names=['invoice','po','invoice_date','product_amount','BirchLaneAllowanceforDamages','wfcaallowancefordamages','wfallowancefordamages','wfearlypaydiscount','shipping','other','taxvat','paymentamount','busniess','ordertype']
-                df.columns=names
-                df['wfallowancefordamages']=df.apply(lambda x:x.BirchLaneAllowanceforDamages+x.wfcaallowancefordamages+x.wfallowancefordamages,axis=1)
-                df = df.drop(['wfcaallowancefordamages','BirchLaneAllowanceforDamages'], axis=1)
-            else:
-                names=['invoice','po','invoice_date','product_amount','wfcaallowancefordamages','wfallowancefordamages','wfearlypaydiscount','shipping','other','taxvat','paymentamount','busniess','ordertype']
-                df.columns=names
-                df['wfallowancefordamages']=df.apply(lambda x:x.wfcaallowancefordamages+x.wfallowancefordamages,axis=1)
-                df = df.drop('wfcaallowancefordamages', axis=1)
+            df.rename(columns={
+                'Invoice #':'invoice',
+                'PO #': 'po',
+                'Invoice Date': 'invoice_date',
+                'Product Amount': 'product_amount',
+                'Birch Lane Allowance for Damages/ Defects [4.00%]': 'BirchLaneAllowanceforDamages',
+                'Wayfair CA Allowance for Damages/ Defects [4.00%]': 'wfcaallowancefordamages',
+                'Wayfair Allowance for Damages/ Defects [4.00%]': 'wfallowancefordamages',
+                'Early Pay Discount': 'wfearlypaydiscount',
+                'Perigold Allowance for Damages/ Defects [4.00%]':'perigoldallowancefordamages',
+                'Shipping': 'shipping',
+                'Other': 'other',
+                'Tax/VAT': 'taxvat',
+                'Payment Amount': 'paymentamount',
+                'Business': 'busniess',
+                'Order Type': 'ordertype'
+            },inplace=True)
+            if 'wfcaallowancefordamages' not in df.columns:
+                df['wfcaallowancefordamages']=0
+            if 'BirchLaneAllowanceforDamages' not in df.columns:
+                df['BirchLaneAllowanceforDamages']=0
+            if 'perigoldallowancefordamages' not in df.columns:
+                df['perigoldallowancefordamages']=0
+            df['wfallowancefordamages'] = df.apply(
+                lambda x: x.BirchLaneAllowanceforDamages + x.wfcaallowancefordamages + x.wfallowancefordamages+x.perigoldallowancefordamages, axis=1)
+            df = df.drop(['wfcaallowancefordamages','BirchLaneAllowanceforDamages', 'perigoldallowancefordamages'], axis=1)
+
 
             taxvat=df['taxvat'].sum()
             creditshipping=df.loc[df['shipping']<0,:]['shipping'].sum()
