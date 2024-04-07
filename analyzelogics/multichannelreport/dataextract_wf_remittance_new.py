@@ -166,7 +166,7 @@ def dealsinglefile(path,attrjson):
 
         blocklist2={} # 获取total
         currentl=1
-        for i,cell in enumerate(table['I']):
+        for i,cell in enumerate(table['K']):
             if not blocklist2.get(currentl):
                 blocklist2[currentl]=[]
             # print(i+1,cell.value)
@@ -204,6 +204,8 @@ def dealsinglefile(path,attrjson):
                 'Wayfair Allowance for Damages/ Defects [4.00%]': 'wfallowancefordamages',
                 'Early Pay Discount': 'wfearlypaydiscount',
                 'Perigold Allowance for Damages/ Defects [4.00%]':'perigoldallowancefordamages',
+                'Joss & Main Allowance for Damages/ Defects [4.00%]':'jossmainallowancefordamages',
+                'All Modern Allowance for Damages/ Defects [4.00%]':'allmodernallowancefordamages',
                 'Shipping': 'shipping',
                 'Other': 'other',
                 'Tax/VAT': 'taxvat',
@@ -217,9 +219,13 @@ def dealsinglefile(path,attrjson):
                 df['BirchLaneAllowanceforDamages']=0
             if 'perigoldallowancefordamages' not in df.columns:
                 df['perigoldallowancefordamages']=0
+            if 'jossmainallowancefordamages' not in df.columns:
+                df['jossmainallowancefordamages']=0
+            if 'allmodernallowancefordamages' not in df.columns:
+                df['allmodernallowancefordamages']=0
             df['wfallowancefordamages'] = df.apply(
-                lambda x: x.BirchLaneAllowanceforDamages + x.wfcaallowancefordamages + x.wfallowancefordamages+x.perigoldallowancefordamages, axis=1)
-            df = df.drop(['wfcaallowancefordamages','BirchLaneAllowanceforDamages', 'perigoldallowancefordamages'], axis=1)
+                lambda x: x.BirchLaneAllowanceforDamages + x.wfcaallowancefordamages + x.wfallowancefordamages+x.perigoldallowancefordamages+x.jossmainallowancefordamages+x.allmodernallowancefordamages, axis=1)
+            df = df.drop(['wfcaallowancefordamages','BirchLaneAllowanceforDamages', 'perigoldallowancefordamages','jossmainallowancefordamages','allmodernallowancefordamages'], axis=1)
 
 
             taxvat=df['taxvat'].sum()
@@ -257,12 +263,13 @@ def dealsinglefile(path,attrjson):
 
             for key in blocklist.keys():
                 if len(blocklist[key])!=0 and key >=3:
-
-                    if table.cell(row=blocklist.get(key)[0],column=1).value=='Vendor Services:':
+                    print(table.cell(row=blocklist.get(key)[0],column=1).value)
+                    if table.cell(row=blocklist.get(key)[0],column=1).value=='Vendor Services':
+                        print('Vendor Services')
                         rown1 = blocklist[key]
                         print(rown1)
                         dfvendor = pd.read_excel(path, skiprows=rown1[1] - 1, skipfooter=tablemaxrow - rown1[-1])
-                        print(dfvendor)
+                        # print(dfvendor)
                         dfvendor.rename(columns={'Invoice #': 'invoice', 'Program Type': 'program_type',
                                                  'Invoice Date': 'invoice_date', 'Description': 'desc',
                                                  'Amount': 'amount'}, inplace=True)
@@ -272,7 +279,7 @@ def dealsinglefile(path,attrjson):
                         print('Credit')
                         po=table.cell(row=blocklist.get(key)[0], column=2).value
                         date=table.cell(row=blocklist.get(key)[0], column=3).value
-                        amount=table.cell(row=blocklist.get(key)[0], column=11).value
+                        amount=table.cell(row=blocklist.get(key)[0], column=12).value
                         # print(po,date,amount)
                         sku,qty=None,None
 
@@ -288,10 +295,12 @@ def dealsinglefile(path,attrjson):
             #取total
             total=0
             for key in blocklist2.keys():
+                print('key:>>>' + str(key))
+
                 if len(blocklist2[key])!=0:
-                    if table.cell(row=blocklist2.get(key)[0], column=9).value == 'Total (USD): ':
+                    if table.cell(row=blocklist2.get(key)[0], column=11).value == 'Total (USD):':
                         print('total')
-                        total=table.cell(row=blocklist2.get(key)[0], column=10).value
+                        total=table.cell(row=blocklist2.get(key)[0], column=12).value
             # if blocklist[7]!=[]:
             #     if table.cell(row=blocklist[7][0], column=1).value == 'Vendor Services:':
             #
@@ -344,6 +353,7 @@ def dealsinglefile(path,attrjson):
                 if len(blocklist[key])!=0 and key >=3:
 
                     if table.cell(row=blocklist.get(key)[0],column=1).value=='Vendor Services:':
+                        print('Vendor Services')
                         rown1 = blocklist[key]
                         print(rown1)
                         dfvendor = pd.read_excel(path, skiprows=rown1[1] - 1, skipfooter=tablemaxrow - rown1[-1])
@@ -429,6 +439,7 @@ def dealsinglefile(path,attrjson):
                 if len(blocklist[key])!=0 and key >=3:
 
                     if table.cell(row=blocklist.get(key)[0],column=1).value=='Vendor Services:':
+                        print('Vendor Services')
                         rown1 = blocklist[key]
                         print(rown1)
                         dfvendor = pd.read_excel(path, skiprows=rown1[1] - 1, skipfooter=tablemaxrow - rown1[-1])
