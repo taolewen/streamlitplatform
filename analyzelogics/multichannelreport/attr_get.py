@@ -95,7 +95,12 @@ def get_option(channel):
             'country': ['US'],
             'area': ['US'],
             'store': ['overstock-US']
+        },
+        'temu': {
+            'reporttype': ['订单'],
+            'country': ['US'],
+            'area': ['US'],
+            'store': ['temu-US']
         }
-
     }
     return opdict[channel]
