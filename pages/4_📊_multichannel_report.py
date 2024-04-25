@@ -14,7 +14,8 @@ from analyzelogics.multichannelreport import dataextract_wf_order_shipped, datae
     dataextract_ebay_orders, dataextract_mm_order, dataextract_mm_ad, dataextract_mm_return, dataextract_mm_payment, \
     dataextract_shopify_order, dataextract_shopify_ad1, dataextract_shopify_ad2, \
     dataextract_cd_paymentdetail_settlement, dataextract_shein_order, dataextract_shein_payment, \
-    dataextract_mm_storagefeesmf, dataextract_mm_mastersheetmf, dataextract_os_orders, dataextract_os_payment,dataextract_temu_orders
+    dataextract_mm_storagefeesmf, dataextract_mm_mastersheetmf, dataextract_os_orders, dataextract_os_payment,\
+    dataextract_temu_orders,dataextract_temu_billdetails,dataextract_temu_settled
 from analyzelogics.multichannelreport.attr_get import get_option, get_week, get_qijian, get_periodrange
 
 if "channel" not in st.session_state:
@@ -198,6 +199,10 @@ with tab1:
             if st.session_state['channel'] == 'temu':
                 if st.session_state['reporttype'] == '订单':
                     s, m = dataextract_temu_orders.dealsinglefile(uploadfilepath, d)
+                if st.session_state['reporttype'] == '账单明细':
+                    s, m = dataextract_temu_billdetails.dealsinglefile(uploadfilepath, d)
+                if st.session_state['reporttype'] == '结算':
+                    s, m = dataextract_temu_settled.dealsinglefile(uploadfilepath, d)
             print(s,m)
             delete_uploaded_file(uploadfilepath)
             if s == 1:
@@ -289,6 +294,10 @@ with tab2:
     elif st.session_state['channel'] == 'temu':
         if st.session_state['reporttype'] == '订单':
             df_check=dataextract_temu_orders.selectbatch(d)
+        if st.session_state['reporttype'] == '账单明细':
+            df_check=dataextract_temu_billdetails.selectbatch(d)
+        if st.session_state['reporttype'] == '结算':
+            df_check=dataextract_temu_settled.selectbatch(d)
     df_delete=st.data_editor(df_check,    column_config={
         "delete": st.column_config.CheckboxColumn(
             "是否删除",
@@ -385,6 +394,10 @@ with tab2:
         if st.session_state['channel'] == 'temu':
             if st.session_state['reporttype'] == '订单':
                 s, m = dataextract_temu_orders.deletebatch(batchid)
+            if st.session_state['reporttype'] == '账单明细':
+                s, m = dataextract_temu_billdetails.deletebatch(batchid)
+            if st.session_state['reporttype'] == '结算':
+                s, m = dataextract_temu_settled.deletebatch(batchid)
         return s,m
     if not st.session_state['delete'] and len(df_delete.loc[df_delete['delete']==True])!=0:
         st.button('删除',on_click=delete_btn_click)

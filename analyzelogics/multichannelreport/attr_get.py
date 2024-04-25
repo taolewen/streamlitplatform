@@ -97,7 +97,7 @@ def get_option(channel):
             'store': ['overstock-US']
         },
         'temu': {
-            'reporttype': ['订单'],
+            'reporttype': ['订单','账单明细','结算'],
             'country': ['US'],
             'area': ['US'],
             'store': ['temu-US']
