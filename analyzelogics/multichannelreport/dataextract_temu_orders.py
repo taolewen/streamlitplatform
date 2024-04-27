@@ -78,7 +78,7 @@ def deletebatch(batchid):
                                password=st.secrets["mysql"]['password'],
                                db=st.secrets["mysql"]['database'])
         cursor = conn.cursor()
-        sql0 = f"""delete from  newchannel_temu_order where batchid = '{batchid}' """
+        sql0 = f"""delete from  newchannel_temu_order1 where batchid = '{batchid}' """
         cursor.execute(sql0)
         sql = f"""delete from  newchannel_batchinfo where batchid = '{batchid}' """
         cursor.execute(sql)
@@ -94,12 +94,12 @@ def dealsinglefile(path,attrjson):
         # name=['gsp_orderid','sellersku','pro_price','username','postcode','country','province','city','user_address1','user_address2','phonenum']
         if len(str(attrjson['week']))==8:
 
-            name=['订单号','订单状态','商品sku','商品件数','货品sku','SKU货号','订单创建时间','要求最晚发货时间','价格']
-            df = pd.read_excel(path, usecols='A:I', names=name)
+            name=['订单号','订单状态','商品sku','商品件数','货品sku','SKU货号','金额','货品件数','收货人姓名','收货人联系方式']
+            df = pd.read_excel(path, usecols='A:J', names=name)
             df['要求签收时间']=None
         else:
-            name=['订单号','订单状态','商品sku','商品件数','货品sku','SKU货号','订单创建时间','要求最晚发货时间','价格']
-            df = pd.read_excel(path, usecols='A:I', names=name)
+            name=['订单号','订单状态','商品sku','商品件数','货品sku','SKU货号','金额','货品件数','收货人姓名','收货人联系方式']
+            df = pd.read_excel(path, usecols='A:J', names=name)
             df['要求签收时间']=None
 
         # df=pd.read_excel(path,sheet_name='soges MF-退款')
@@ -118,11 +118,11 @@ def dealsinglefile(path,attrjson):
         #        "batchid"
         # ]]
         df=df[['area','country','store','week','qijian',
-               '订单号','订单状态','商品sku','商品件数','货品sku','SKU货号','订单创建时间','要求最晚发货时间','价格',
+               '订单号','订单状态','商品sku','商品件数','货品sku','SKU货号','金额','货品件数','收货人姓名','收货人联系方式',
                "batchid"
         ]]
 
-        df.to_sql('newchannel_temu_order', con=engine, if_exists='append', index=False, index_label=False)
+        df.to_sql('newchannel_temu_order1', con=engine, if_exists='append', index=False, index_label=False)
         updatebatch(attrjson,batchid,path)
 
         return 1,''
