@@ -276,10 +276,10 @@ def dealsinglefile(path,attrjson):
                         dfvendor = dfvendor[['invoice', 'program_type', 'invoice_date', 'desc', 'amount']]
 
                     if table.cell(row=blocklist.get(key)[0], column=1).value == 'Credit' or table.cell(row=blocklist.get(key)[0], column=1).value =='Deduction':
-                        print('Credit')
+                        print('Credit>>>>>')
                         po=table.cell(row=blocklist.get(key)[0], column=2).value
                         date=table.cell(row=blocklist.get(key)[0], column=3).value
-                        amount=table.cell(row=blocklist.get(key)[0], column=12).value
+                        amount=table.cell(row=blocklist.get(key)[0], column=11).value
                         # print(po,date,amount)
                         sku,qty=None,None
 
@@ -298,9 +298,9 @@ def dealsinglefile(path,attrjson):
                 print('key:>>>' + str(key))
 
                 if len(blocklist2[key])!=0:
-                    if table.cell(row=blocklist2.get(key)[0], column=11).value == 'Total (USD):':
+                    if table.cell(row=blocklist2.get(key)[0], column=10).value == 'Total (USD):':
                         print('total')
-                        total=table.cell(row=blocklist2.get(key)[0], column=12).value
+                        total=table.cell(row=blocklist2.get(key)[0], column=11).value
             # if blocklist[7]!=[]:
             #     if table.cell(row=blocklist[7][0], column=1).value == 'Vendor Services:':
             #
