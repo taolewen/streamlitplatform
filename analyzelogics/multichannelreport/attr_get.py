@@ -88,7 +88,7 @@ def get_option(channel):
             'reporttype': ['订单', '回款'],
             'country': ['US', 'DE'],
             'area': ['US', 'EU'],
-            'store': ['Shein-US','Shein-EU']
+            'store': ['Shein-US','Shein-EU','SheinKSBDHOME-US']
         },
         'overstock': {
             'reporttype': ['订单', '回款'],
