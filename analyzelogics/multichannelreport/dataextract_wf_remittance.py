@@ -180,7 +180,7 @@ def dealsinglefile(path,attrjson):
         if attrjson['area'].upper() =='US':
             rown=blocklist[3]
             print(rown)
-            names=['invoice','po','invoice_date','product_amount','wfallowancefordamages','wfearlypaydiscount','shipping','other','taxvat','paymentamount','busniess','ordertype']
+            names=['invoice','po','invoice_date','product_amount','wfcaallowancefordamages','wfallowancefordamages','wfearlypaydiscount','shipping','other','taxvat','paymentamount','busniess','ordertype']
             df=pd.read_excel(path,names=names,skiprows=rown[0]-1,skipfooter=tablemaxrow-rown[-1])
             # df.to_csv('remittance_test.csv')
             taxvat=df['taxvat'].sum()
