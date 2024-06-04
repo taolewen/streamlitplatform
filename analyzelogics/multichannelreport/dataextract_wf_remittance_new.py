@@ -193,7 +193,12 @@ def dealsinglefile(path,attrjson):
             print(rown)
 
             df=pd.read_excel(path,skiprows=rown[0]-1,skipfooter=tablemaxrow-rown[-1])
-            columns =df.columns
+            columns =df.columns.to_list()
+            print('columns>>>>>>>>>>')
+            print(columns)
+            paymentamountindex=columns.index('Payment Amount')+1
+            print('paymentamountindex>>>>>>>>>>>>>>>>>>>>'+str(paymentamountindex))
+
             df.rename(columns={
                 'Invoice #':'invoice',
                 'PO #': 'po',
@@ -279,7 +284,7 @@ def dealsinglefile(path,attrjson):
                         print('Credit>>>>>')
                         po=table.cell(row=blocklist.get(key)[0], column=2).value
                         date=table.cell(row=blocklist.get(key)[0], column=3).value
-                        amount=table.cell(row=blocklist.get(key)[0], column=11).value
+                        amount=table.cell(row=blocklist.get(key)[0], column=paymentamountindex).value
                         # print(po,date,amount)
                         sku,qty=None,None
 
@@ -300,7 +305,7 @@ def dealsinglefile(path,attrjson):
                 if len(blocklist2[key])!=0:
                     if table.cell(row=blocklist2.get(key)[0], column=10).value == 'Total (USD):':
                         print('total')
-                        total=table.cell(row=blocklist2.get(key)[0], column=11).value
+                        total=table.cell(row=blocklist2.get(key)[0], column=paymentamountindex).value
             # if blocklist[7]!=[]:
             #     if table.cell(row=blocklist[7][0], column=1).value == 'Vendor Services:':
             #
@@ -315,6 +320,11 @@ def dealsinglefile(path,attrjson):
             print(rown)
             names=['invoice','po','invoice_date','product_amount','wfallowancefordamages','wfearlypaydiscount','shipping','other','taxvat','paymentamount','busniess','ordertype']
             df=pd.read_excel(path,names=names,skiprows=rown[0]-1,skipfooter=tablemaxrow-rown[-1])
+            columns =df.columns.to_list()
+            print('columns>>>>>>>>>>')
+            print(columns)
+            paymentamountindex=columns.index('Payment Amount')+1
+            print('paymentamountindex>>>>>>>>>>>>>>>>>>>>'+str(paymentamountindex))
             # df.to_csv('remittance_test.csv')
             taxvat=df['taxvat'].sum()
             creditshipping=df.loc[df['shipping']<0,:]['shipping'].sum()
@@ -367,7 +377,7 @@ def dealsinglefile(path,attrjson):
                         print('Credit')
                         po=table.cell(row=blocklist.get(key)[0], column=2).value
                         date=table.cell(row=blocklist.get(key)[0], column=3).value
-                        amount=table.cell(row=blocklist.get(key)[0], column=10).value
+                        amount=table.cell(row=blocklist.get(key)[0], column=paymentamountindex).value
                         # print(po,date,amount)
                         sku,qty=None,None
 
@@ -382,7 +392,7 @@ def dealsinglefile(path,attrjson):
             total=0
             for key in blocklist2.keys():
                 if len(blocklist2[key])!=0:
-                    if table.cell(row=blocklist2.get(key)[0], column=9).value == 'Total (USD): ':
+                    if table.cell(row=blocklist2.get(key)[0], column=paymentamountindex).value == 'Total (USD): ':
                         print('total')
                         total=table.cell(row=blocklist2.get(key)[0], column=10).value
             # if blocklist[7]!=[]:
