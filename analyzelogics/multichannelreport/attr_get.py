@@ -65,9 +65,9 @@ def get_option(channel):
         },
         'manomano': {
             'reporttype': ['广告','订单','退款','回款','平台仓租','平台物流费'],
-            'country': ['FR','DE'],
+            'country': ['FR','DE','ES','IT'],
             'area': ['EU'],
-            'store': ['MM-2','MM-3','MM-3-DE','MM-3-MF','MM-HEMQ','MM-HEMQ-MF']
+            'store': ['MM-2','MM-3','MM-3-DE','MM-3-MF','MM-HEMQ','MM-HEMQ-MF','MM-3-ES','MM-3-IT']
 
         },
         'walmart': {
