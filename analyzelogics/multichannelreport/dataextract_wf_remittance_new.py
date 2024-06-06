@@ -220,6 +220,8 @@ def dealsinglefile(path,attrjson):
             },inplace=True)
             if 'wfcaallowancefordamages' not in df.columns:
                 df['wfcaallowancefordamages']=0
+            if 'wfallowancefordamages' not in df.columns:
+                df['wfallowancefordamages']=0
             if 'BirchLaneAllowanceforDamages' not in df.columns:
                 df['BirchLaneAllowanceforDamages']=0
             if 'perigoldallowancefordamages' not in df.columns:
@@ -303,7 +305,7 @@ def dealsinglefile(path,attrjson):
                 print('key:>>>' + str(key))
 
                 if len(blocklist2[key])!=0:
-                    if table.cell(row=blocklist2.get(key)[0], column=10).value == 'Total (USD):':
+                    if table.cell(row=blocklist2.get(key)[0], column=paymentamountindex-1).value == 'Total (USD):':
                         print('total')
                         total=table.cell(row=blocklist2.get(key)[0], column=paymentamountindex).value
             # if blocklist[7]!=[]:
@@ -316,15 +318,60 @@ def dealsinglefile(path,attrjson):
             #         dfvendor.rename(columns={'Invoice #':'invoice','Program Type':'program_type','Invoice Date':'invoice_date','Description':'desc','Amount':'amount'},inplace=True)
             #         dfvendor=dfvendor[['invoice','program_type','invoice_date','desc','amount']]
         elif attrjson['area'].upper() =='CA':
-            rown=blocklist[4]
+            rown=blocklist[3]
             print(rown)
-            names=['invoice','po','invoice_date','product_amount','wfallowancefordamages','wfearlypaydiscount','shipping','other','taxvat','paymentamount','busniess','ordertype']
-            df=pd.read_excel(path,names=names,skiprows=rown[0]-1,skipfooter=tablemaxrow-rown[-1])
+
+
+            # names=['invoice','po','invoice_date','product_amount','wfallowancefordamages','wfearlypaydiscount','shipping','other','taxvat','paymentamount','busniess','ordertype']
+            # df=pd.read_excel(path,names=names,skiprows=rown[0]-1,skipfooter=tablemaxrow-rown[-1])
+
+            df=pd.read_excel(path,skiprows=rown[0]-1,skipfooter=tablemaxrow-rown[-1])
             columns =df.columns.to_list()
             print('columns>>>>>>>>>>')
             print(columns)
             paymentamountindex=columns.index('Payment Amount')+1
             print('paymentamountindex>>>>>>>>>>>>>>>>>>>>'+str(paymentamountindex))
+
+            df.rename(columns={
+                'Invoice #': 'invoice',
+                'PO #': 'po',
+                'Invoice Date': 'invoice_date',
+                'Product Amount': 'product_amount',
+                'Birch Lane Allowance for Damages/ Defects [4.00%]': 'BirchLaneAllowanceforDamages',
+                'Wayfair CA Allowance for Damages/ Defects [4.00%]': 'wfcaallowancefordamages',
+                'Wayfair Allowance for Damages/ Defects [4.00%]': 'wfallowancefordamages',
+                'Early Pay Discount': 'wfearlypaydiscount',
+                'Perigold Allowance for Damages/ Defects [4.00%]': 'perigoldallowancefordamages',
+                'Joss & Main Allowance for Damages/ Defects [4.00%]': 'jossmainallowancefordamages',
+                'All Modern Allowance for Damages/ Defects [4.00%]': 'allmodernallowancefordamages',
+                'Shipping': 'shipping',
+                'Other': 'other',
+                'Tax/VAT': 'taxvat',
+                'Payment Amount': 'paymentamount',
+                'Business': 'busniess',
+                'Order Type': 'ordertype'
+            }, inplace=True)
+            if 'wfcaallowancefordamages' not in df.columns:
+                df['wfcaallowancefordamages'] = 0
+            if 'wfallowancefordamages' not in df.columns:
+                df['wfallowancefordamages'] = 0
+            if 'BirchLaneAllowanceforDamages' not in df.columns:
+                df['BirchLaneAllowanceforDamages'] = 0
+            if 'perigoldallowancefordamages' not in df.columns:
+                df['perigoldallowancefordamages'] = 0
+            if 'jossmainallowancefordamages' not in df.columns:
+                df['jossmainallowancefordamages'] = 0
+            if 'allmodernallowancefordamages' not in df.columns:
+                df['allmodernallowancefordamages'] = 0
+            if 'wfearlypaydiscount' not in df.columns:
+                df['wfearlypaydiscount'] = 0
+            df['wfallowancefordamages'] = df.apply(
+                lambda
+                    x: x.BirchLaneAllowanceforDamages + x.wfcaallowancefordamages + x.wfallowancefordamages + x.perigoldallowancefordamages + x.jossmainallowancefordamages + x.allmodernallowancefordamages,
+                axis=1)
+            df = df.drop(['wfcaallowancefordamages', 'BirchLaneAllowanceforDamages', 'perigoldallowancefordamages',
+                          'jossmainallowancefordamages', 'allmodernallowancefordamages'], axis=1)
+
             # df.to_csv('remittance_test.csv')
             taxvat=df['taxvat'].sum()
             creditshipping=df.loc[df['shipping']<0,:]['shipping'].sum()
@@ -392,9 +439,9 @@ def dealsinglefile(path,attrjson):
             total=0
             for key in blocklist2.keys():
                 if len(blocklist2[key])!=0:
-                    if table.cell(row=blocklist2.get(key)[0], column=paymentamountindex).value == 'Total (USD): ':
+                    if table.cell(row=blocklist2.get(key)[0], column=paymentamountindex-1).value == 'Total (USD): ':
                         print('total')
-                        total=table.cell(row=blocklist2.get(key)[0], column=10).value
+                        total=table.cell(row=blocklist2.get(key)[0], column=paymentamountindex).value
             # if blocklist[7]!=[]:
             #     if table.cell(row=blocklist[7][0], column=1).value == 'Vendor Services:':
             #
