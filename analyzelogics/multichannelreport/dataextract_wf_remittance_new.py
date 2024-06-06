@@ -188,6 +188,14 @@ def dealsinglefile(path,attrjson):
             else:
                 return df['Quantity'].values[0]
 
+        def getorderqty1(orderid):
+            df=df_order.loc[(df_order['PO_Number']==orderid)]
+            if len(df)==0:
+                return '',0
+            else:
+                return df_order['Item_Number'].values[0],df['Quantity'].values[0]
+
+
         if attrjson['area'].upper() =='US':
             rown=blocklist[3]
             print(rown)
@@ -431,7 +439,12 @@ def dealsinglefile(path,attrjson):
                         for i in blocklist.get(key):
                             if table.cell(row=i, column=1).value.startswith('Item'):
                                 sku=table.cell(row=i, column=1).value.split(':')[1].replace(' ','')
-                                qty=table.cell(row=i, column=2).value.split(':')[1].replace(' ','')
+                                # qty=table.cell(row=i, column=2).value.split(':')[1].replace(' ','')
+                                #数量从order去同订单号同sku
+                                sku_o,qty=getorderqty1(po)
+                                if sku=='':
+                                    sku=sku_o
+
 
                         creditsdfconcat.loc[len(creditsdfconcat.index)] = [po,date,sku,qty,amount,0]
 
@@ -517,8 +530,9 @@ def dealsinglefile(path,attrjson):
                         for i in blocklist.get(key):
                             if table.cell(row=i, column=1).value.startswith('Item'):
                                 sku=table.cell(row=i, column=1).value.split(':')[1].replace(' ','')
-                                qty=table.cell(row=i, column=2).value.split(':')[1].replace(' ','')
-
+                                # qty=table.cell(row=i, column=2).value.split(':')[1].replace(' ','')
+                                #数量从order去同订单号同sku
+                                qty=getorderqty(po,sku)
                         creditsdfconcat.loc[len(creditsdfconcat.index)] = [po,date,sku,qty,amount,0]
 
             #取total
