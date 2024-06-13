@@ -441,8 +441,10 @@ def dealsinglefile(path,attrjson):
                                 sku=table.cell(row=i, column=1).value.split(':')[1].replace(' ','')
                                 # qty=table.cell(row=i, column=2).value.split(':')[1].replace(' ','')
                                 #数量从order去同订单号同sku
-                                sku_o,qty=getorderqty1(po)
-                                if sku=='':
+                                if sku!='' and sku != None:
+                                    qty = getorderqty(po, sku)
+                                else:
+                                    sku_o,qty=getorderqty1(po)
                                     sku=sku_o
 
 
