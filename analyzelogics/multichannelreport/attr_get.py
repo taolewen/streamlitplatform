@@ -100,7 +100,7 @@ def get_option(channel):
             'reporttype': ['订单','账单明细','结算'],
             'country': ['US'],
             'area': ['US'],
-            'store': ['temu-US']
+            'store': ['temu-US','temu-NSDHome']
         }
     }
     return opdict[channel]
