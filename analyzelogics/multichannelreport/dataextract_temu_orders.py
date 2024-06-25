@@ -94,14 +94,15 @@ def dealsinglefile(path,attrjson):
         # name=['gsp_orderid','sellersku','pro_price','username','postcode','country','province','city','user_address1','user_address2','phonenum']
         if len(str(attrjson['week']))==8:
 
-            name=['订单号','订单状态','商品sku','商品件数','货品sku','SKU货号','金额','货品件数','收货人姓名','收货人联系方式']
-            df = pd.read_excel(path, usecols='A:J', names=name)
+            # name=['订单号','订单状态','商品sku','商品件数','货品sku','SKU货号','金额','货品件数','收货人姓名','收货人联系方式']
+            name=['订单号','订单状态','商品sku','商品件数','货品sku','货品件数','货品SKC_ID','货品SPU_ID','SKU货号','金额','收货人姓名','收货人联系方式']
+            df = pd.read_excel(path, usecols='A:L', names=name)
             df['要求签收时间']=None
         else:
             name=['订单号','订单状态','商品sku','商品件数','货品sku','SKU货号','金额','货品件数','收货人姓名','收货人联系方式']
             df = pd.read_excel(path, usecols='A:J', names=name)
             df['要求签收时间']=None
-
+        df=df[['订单号','订单状态','商品sku','商品件数','货品sku','SKU货号','金额','货品件数','收货人姓名','收货人联系方式']]
         # df=pd.read_excel(path,sheet_name='soges MF-退款')
         # df.to_csv('fdfd0.csv')
         # print(df)

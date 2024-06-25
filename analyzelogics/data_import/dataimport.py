@@ -87,7 +87,7 @@ def dealsinglefile(path,attrjson={}):
                 'Type',
                 'Invoice_Number',
                 'Marketplace']
-        df=pd.read_csv(path,names=names,encoding='cp1252')
+        df=pd.read_csv(path,names=names,encoding='cp1252',skiprows=1)
 
         # df['area'] = attrjson['area']
         # df['country'] = attrjson['country']
