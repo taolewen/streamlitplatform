@@ -1,20 +1,17 @@
-
-#cd
+# cd
 import datetime
 import os
 import traceback
 import uuid
 from datetime import timedelta
 from urllib.parse import quote_plus
-import openpyxl
+
 import pymysql
 from dateutil import parser
 import pandas as pd
 
 # 显示所有列
-from openpyxl import load_workbook
 from sqlalchemy import create_engine
-
 
 import streamlit as st
 host = st.secrets["mysql"]['host'],
@@ -24,7 +21,7 @@ db = st.secrets["mysql"]['database']
 connstr = f"mysql+pymysql://{user[0]}:%s@{host[0]}:3306/{db}?charset=utf8" % quote_plus(f'{password[0]}')
 engine = create_engine(connstr)
 pd.set_option('display.max_columns', None)
-reporttype='dataextract_wm_order'
+reporttype='dataextract_djy_platformfees'
 
 def getuid():
     uid = str(uuid.uuid4())
@@ -79,9 +76,8 @@ def deletebatch(batchid):
                                password=st.secrets["mysql"]['password'],
                                db=st.secrets["mysql"]['database'])
         cursor = conn.cursor()
-
-        sql1 = f"""delete from  newchannel_wm_order where batchid = '{batchid}' """
-        cursor.execute(sql1)
+        sql0 = f"""delete from  newchannel_djy_platformfees where batchid = '{batchid}' """
+        cursor.execute(sql0)
         sql = f"""delete from  newchannel_batchinfo where batchid = '{batchid}' """
         cursor.execute(sql)
         conn.commit()
@@ -90,106 +86,50 @@ def deletebatch(batchid):
         return 1,''
     except:
         return 2,traceback.format_exc()
-def dealsinglefile(path,attrjson):
+def dealsinglefile(path, attrjson):
     try:
         batchid=getuid()
 
-        df=pd.read_excel(path)
-        df.rename(columns={"PO#":"PO",
-    "Order#":"Order",
-    "Order Date":"Order_Date",
-    "Ship By":"Ship_By",
-    "Delivery Date":"Delivery_Date",
-    "Customer Name":"Customer_Name",
-    "Customer Shipping Address":"Customer_Shipping_Address",
-    "Customer Phone Number":"Customer_Phone_Number",
-    "Ship to Address 1":"Ship_to_Address_1",
-    "Ship to Address 2":"Ship_to_Address_2",
-    "City":"City",
-    "State":"State",
-    "Zip":"Zip",
-    "Segment":"Segment",
-    "FLIDS":"FLIDS",
-    "FLIDs": "FLIDS",
-    "Line#":"Line",
-    "UPC":"UPC",
-    "Status":"Status",
-    "Item Description":"Item_Description",
-    "Shipping Method":"Shipping_Method",
-    "Shipping Tier":"Shipping_Tier",
-    "Shipping SLA":"Shipping_SLA",
-    "Shipping Config SOurce":"Shipping_Config_SOurce",
-    "Shipping Config Source": "Shipping_Config_SOurce",
-    "Qty":"Qty",
-    "SKU":"SKU",
-    "Item Cost":"Item_Cost",
-    "Discount":"Discount",
-    "Shipping Cost":"Shipping_Cost",
-    "Tax":"Tax",
-    "Update Status":"Update_Status",
-    "Update Qty":"Update_Qty",
-    "Carrier":"Carrier",
-    "Tracking Number":"Tracking_Number",
-    "Tracking Url":"Tracking_Url",
-    "Seller Order NO":"Seller_Order_NO",
-    "Fulfillment Entity":"Fulfillment_Entity",
-    "Replacement Order":"Replacement_Order",
-    "Original Customer Order Id":"Original_Customer_Order_Id"},inplace=True)
+        # df = pd.read_excel(path,sheet_name='soges MM-广告')
+        df = pd.read_excel(path)
+
+        df.rename(columns={
+            "发生时间": "发生时间",
+            "平台费类型": "平台费类型",
+            "结算周期": "结算周期",
+            "编号": "编号",
+            "附件": "附件",
+            "收费明细": "收费明细",
+            "备注": "备注",
+            "发生金额": "发生金额",
+
+        }, inplace=True)
         df['area'] = attrjson['area']
         df['country'] = attrjson['country']
         df['store'] = attrjson['store']
         df['week'] = attrjson['week']
-        df['qijian'] = attrjson['qijian']
-
-        df=df[['area','country','store','week','qijian',
-            "PO",
-            "Order",
-            "Order_Date",
-            "Ship_By",
-            "Delivery_Date",
-            "Customer_Name",
-            "Customer_Shipping_Address",
-            "Customer_Phone_Number",
-            "Ship_to_Address_1",
-            "Ship_to_Address_2",
-            "City",
-            "State",
-            "Zip",
-            "Segment",
-            "FLIDS",
-            "Line",
-            "UPC",
-            "Status",
-            "Item_Description",
-            "Shipping_Method",
-            "Shipping_Tier",
-            "Shipping_SLA",
-            "Shipping_Config_SOurce",
-            "Qty",
-            "SKU",
-            "Item_Cost",
-            "Discount",
-            "Shipping_Cost",
-            "Tax",
-            "Update_Status",
-            "Update_Qty",
-            "Carrier",
-            "Tracking_Number",
-            "Tracking_Url",
-            "Seller_Order_NO",
-            "Fulfillment_Entity",
-            "Replacement_Order",
-            "Original_Customer_Order_Id"
-        ]]
+        df['qijian']=attrjson['qijian']
         df['batchid']=batchid
 
-        df.to_sql('newchannel_wm_order', con=engine, if_exists='append', index=False, index_label=False)
+        df = df[['area', 'country', 'store', 'week','qijian',
+                 "发生时间",
+                 "平台费类型",
+                 "结算周期",
+                 "编号",
+                 "附件",
+                 "收费明细",
+                 "备注",
+                 "发生金额",
+                 "batchid"
+
+                 ]]
+
+        df.to_sql('newchannel_djy_platformfees', con=engine, if_exists='append', index=False, index_label=False)
         updatebatch(attrjson,batchid,path)
 
         return 1,''
     except:
         return 2,traceback.format_exc()
-
 
 if __name__ == '__main__':
     # attrjson={
@@ -201,17 +141,15 @@ if __name__ == '__main__':
     # dealsinglefile('E:\pythonws\pythonws\pythonws\playwrighttest\data_proceed\csvs\wfremittance\Wayfair_Remittance_4640701.xlsx',attrjson)
     # # dealsinglefile('E:\pythonws\pythonws\pythonws\playwrighttest\data_proceed\csvs\cdpaymentdetail\\NSD-payment_details_export_139494.xlsx',attrjson)
 
-
-
-    attrjson={
+    attrjson = {
         'area': 'eu',
-        'country':'fr',
-        'store':'cd-3',
-        'week':20
+        'country': 'fr',
+        'store': 'cd-3',
+        'week': 20
 
     }
     dealsinglefile(
-    'E:\pythonws\pythonws\pythonws\playwrighttest\data_proceed\csvs\wm_订单\PO_Data_2022-04-01_00_41_37PST.xlsx',attrjson)
+        'E:\pythonws\pythonws\pythonws\playwrighttest\data_proceed\csvs\mm_\manomano  (3.1-3.31).xlsx', attrjson)
     #
 
 

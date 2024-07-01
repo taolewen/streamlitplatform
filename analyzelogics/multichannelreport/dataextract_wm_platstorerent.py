@@ -6,13 +6,12 @@ import traceback
 import uuid
 from datetime import timedelta
 from urllib.parse import quote_plus
-import openpyxl
+
 import pymysql
 from dateutil import parser
 import pandas as pd
 
 # 显示所有列
-from openpyxl import load_workbook
 from sqlalchemy import create_engine
 
 
@@ -24,7 +23,7 @@ db = st.secrets["mysql"]['database']
 connstr = f"mysql+pymysql://{user[0]}:%s@{host[0]}:3306/{db}?charset=utf8" % quote_plus(f'{password[0]}')
 engine = create_engine(connstr)
 pd.set_option('display.max_columns', None)
-reporttype='dataextract_wm_order'
+reporttype='dataextract_wm_platstorerent'
 
 def getuid():
     uid = str(uuid.uuid4())
@@ -80,7 +79,7 @@ def deletebatch(batchid):
                                db=st.secrets["mysql"]['database'])
         cursor = conn.cursor()
 
-        sql1 = f"""delete from  newchannel_wm_order where batchid = '{batchid}' """
+        sql1 = f"""delete from  newchannel_wm_platstorerent where batchid = '{batchid}' """
         cursor.execute(sql1)
         sql = f"""delete from  newchannel_batchinfo where batchid = '{batchid}' """
         cursor.execute(sql)
@@ -94,47 +93,23 @@ def dealsinglefile(path,attrjson):
     try:
         batchid=getuid()
 
-        df=pd.read_excel(path)
-        df.rename(columns={"PO#":"PO",
-    "Order#":"Order",
-    "Order Date":"Order_Date",
-    "Ship By":"Ship_By",
-    "Delivery Date":"Delivery_Date",
-    "Customer Name":"Customer_Name",
-    "Customer Shipping Address":"Customer_Shipping_Address",
-    "Customer Phone Number":"Customer_Phone_Number",
-    "Ship to Address 1":"Ship_to_Address_1",
-    "Ship to Address 2":"Ship_to_Address_2",
-    "City":"City",
-    "State":"State",
-    "Zip":"Zip",
-    "Segment":"Segment",
-    "FLIDS":"FLIDS",
-    "FLIDs": "FLIDS",
-    "Line#":"Line",
-    "UPC":"UPC",
-    "Status":"Status",
-    "Item Description":"Item_Description",
-    "Shipping Method":"Shipping_Method",
-    "Shipping Tier":"Shipping_Tier",
-    "Shipping SLA":"Shipping_SLA",
-    "Shipping Config SOurce":"Shipping_Config_SOurce",
-    "Shipping Config Source": "Shipping_Config_SOurce",
-    "Qty":"Qty",
-    "SKU":"SKU",
-    "Item Cost":"Item_Cost",
-    "Discount":"Discount",
-    "Shipping Cost":"Shipping_Cost",
-    "Tax":"Tax",
-    "Update Status":"Update_Status",
-    "Update Qty":"Update_Qty",
-    "Carrier":"Carrier",
-    "Tracking Number":"Tracking_Number",
-    "Tracking Url":"Tracking_Url",
-    "Seller Order NO":"Seller_Order_NO",
-    "Fulfillment Entity":"Fulfillment_Entity",
-    "Replacement Order":"Replacement_Order",
-    "Original Customer Order Id":"Original_Customer_Order_Id"},inplace=True)
+        df=pd.read_csv(path,skiprows=3)
+        df.rename(columns={'Partner GTIN':'Partner_GTIN',
+        'Vendor SKU':'Vendor_SKU',
+        'Walmart Item ID':'Walmart_Item_ID',
+        'Item Name':'Item_Name',
+        'Length':'Length',
+        'Width':'Width',
+        'Height':'Height',
+        'Volume':'Volume',
+        'Weight':'Weight',
+        'Standard Daily Storage Cost per Unit (Off-Peak, Aged under 365 days)':'Standard_Daily_Storage_Cost_per_Unit',
+        'Peak Daily Storage Cost Per Unit (Aged over 30 days)':'Peak_Daily_Storage_Cost_Per_Unit_Aged_over_30_days',
+        'Long-term Daily Storage Cost per Unit (Aged over 365 days)':'Long_term_Daily_Storage_Cost_per_Unit',
+        'Average Units on Hand':'Average_Units_on_Hand',
+        'Ending Units on Hand':'Ending_Units_on_Hand',
+        'Storage Fee for Selected Time Period':'Storage_Fee_for_Selected_Time_Period'
+                           },inplace=True)
         df['area'] = attrjson['area']
         df['country'] = attrjson['country']
         df['store'] = attrjson['store']
@@ -142,48 +117,25 @@ def dealsinglefile(path,attrjson):
         df['qijian'] = attrjson['qijian']
 
         df=df[['area','country','store','week','qijian',
-            "PO",
-            "Order",
-            "Order_Date",
-            "Ship_By",
-            "Delivery_Date",
-            "Customer_Name",
-            "Customer_Shipping_Address",
-            "Customer_Phone_Number",
-            "Ship_to_Address_1",
-            "Ship_to_Address_2",
-            "City",
-            "State",
-            "Zip",
-            "Segment",
-            "FLIDS",
-            "Line",
-            "UPC",
-            "Status",
-            "Item_Description",
-            "Shipping_Method",
-            "Shipping_Tier",
-            "Shipping_SLA",
-            "Shipping_Config_SOurce",
-            "Qty",
-            "SKU",
-            "Item_Cost",
-            "Discount",
-            "Shipping_Cost",
-            "Tax",
-            "Update_Status",
-            "Update_Qty",
-            "Carrier",
-            "Tracking_Number",
-            "Tracking_Url",
-            "Seller_Order_NO",
-            "Fulfillment_Entity",
-            "Replacement_Order",
-            "Original_Customer_Order_Id"
+               'Partner_GTIN',
+                'Vendor_SKU',
+                'Walmart_Item_ID',
+                'Item_Name',
+                'Length',
+                'Width',
+                'Height',
+                'Volume',
+                'Weight',
+                'Standard_Daily_Storage_Cost_per_Unit',
+                'Peak_Daily_Storage_Cost_Per_Unit_Aged_over_30_days',
+                'Long_term_Daily_Storage_Cost_per_Unit',
+                'Average_Units_on_Hand',
+                'Ending_Units_on_Hand',
+                'Storage_Fee_for_Selected_Time_Period'
         ]]
         df['batchid']=batchid
 
-        df.to_sql('newchannel_wm_order', con=engine, if_exists='append', index=False, index_label=False)
+        df.to_sql('newchannel_wm_platstorerent', con=engine, if_exists='append', index=False, index_label=False)
         updatebatch(attrjson,batchid,path)
 
         return 1,''
@@ -207,11 +159,12 @@ if __name__ == '__main__':
         'area': 'eu',
         'country':'fr',
         'store':'cd-3',
-        'week':20
+        'week':20,
+        'qijian':'4324'
 
     }
-    dealsinglefile(
-    'E:\pythonws\pythonws\pythonws\playwrighttest\data_proceed\csvs\wm_订单\PO_Data_2022-04-01_00_41_37PST.xlsx',attrjson)
+    print(dealsinglefile(
+    'D:\Settlement_Report.csv',attrjson))
     #
 
 

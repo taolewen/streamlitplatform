@@ -6,7 +6,8 @@ import streamlit as st
 import tempfile
 
 from analyzelogics.multichannelreport import dataextract_wf_order_shipped, dataextract_wf_advertise, \
-    dataextract_wf_remittance, dataextract_wf_remittance_new, dataextract_wf_logisticsinvoice, dataextract_wf_touchenginvoice,\
+    dataextract_wf_remittance, dataextract_wf_remittance_new, dataextract_wf_logisticsinvoice, \
+    dataextract_wf_touchenginvoice, \
     dataextract_wf_curcharges, dataextract_wm_order, \
     dataextract_wm_ad, dataextract_wm_order_jd, dataextract_wm_payment, dataextract_wm_return, \
     dataextract_wm_settlement, dataextract_cd_orderextract, dataextract_cd_paymentdetail_returnmoney, \
@@ -14,8 +15,10 @@ from analyzelogics.multichannelreport import dataextract_wf_order_shipped, datae
     dataextract_ebay_orders, dataextract_mm_order, dataextract_mm_ad, dataextract_mm_return, dataextract_mm_payment, \
     dataextract_shopify_order, dataextract_shopify_ad1, dataextract_shopify_ad2, \
     dataextract_cd_paymentdetail_settlement, dataextract_shein_order, dataextract_shein_payment, \
-    dataextract_mm_storagefeesmf, dataextract_mm_mastersheetmf, dataextract_os_orders, dataextract_os_payment,\
-    dataextract_temu_orders,dataextract_temu_billdetails,dataextract_temu_settled
+    dataextract_mm_storagefeesmf, dataextract_mm_mastersheetmf, dataextract_os_orders, dataextract_os_payment, \
+    dataextract_temu_orders, dataextract_temu_billdetails, dataextract_temu_settled, \
+    dataextract_djy_order, dataextract_djy_fees, dataextract_djy_disbursement, dataextract_djy_platformfees, \
+    dataextract_djy_balance, dataextract_wm_platstorerent
 from analyzelogics.multichannelreport.attr_get import get_option, get_week, get_qijian, get_periodrange
 
 if "channel" not in st.session_state:
@@ -154,6 +157,8 @@ with tab1:
                     s, m = dataextract_wm_return.dealsinglefile(uploadfilepath, d)
                 if st.session_state['reporttype'] == '结算(运费)':
                     s, m = dataextract_wm_settlement.dealsinglefile(uploadfilepath, d)
+                if st.session_state['reporttype'] == '平台仓租':
+                    s, m = dataextract_wm_platstorerent.dealsinglefile(uploadfilepath, d)
             if st.session_state['channel'] == 'CD':
                 if st.session_state['reporttype'] == 'orderextract':
                     s, m = dataextract_cd_orderextract.dealsinglefile(uploadfilepath, d)
@@ -203,6 +208,19 @@ with tab1:
                     s, m = dataextract_temu_billdetails.dealsinglefile(uploadfilepath, d)
                 if st.session_state['reporttype'] == '结算':
                     s, m = dataextract_temu_settled.dealsinglefile(uploadfilepath, d)
+            if st.session_state['channel'] == 'djy':
+                if st.session_state['reporttype'] == '订单汇总':
+                    s, m = dataextract_djy_order.dealsinglefile(uploadfilepath, d)
+                if st.session_state['reporttype'] == '费用项汇总':
+                    s, m = dataextract_djy_fees.dealsinglefile(uploadfilepath, d)
+                if st.session_state['reporttype'] == '平台费汇总':
+                    s, m = dataextract_djy_platformfees.dealsinglefile(uploadfilepath, d)
+                if st.session_state['reporttype'] == '垫付费汇总':
+                    s, m = dataextract_djy_disbursement.dealsinglefile(uploadfilepath, d)
+                if st.session_state['reporttype'] == '余额明细':
+                    s, m = dataextract_djy_balance.dealsinglefile(uploadfilepath, d)
+
+
             print(s,m)
             delete_uploaded_file(uploadfilepath)
             if s == 1:
@@ -249,6 +267,8 @@ with tab2:
             df_check=dataextract_wm_return.selectbatch(d)
         elif st.session_state['reporttype'] == '结算(运费)':
             df_check=dataextract_wm_settlement.selectbatch(d)
+        if st.session_state['reporttype'] == '平台仓租':
+            df_check=dataextract_wm_platstorerent.selectbatch(d)
     elif st.session_state['channel'] == 'CD':
         if st.session_state['reporttype'] == 'orderextract':
             df_check=dataextract_cd_orderextract.selectbatch(d)
@@ -298,6 +318,18 @@ with tab2:
             df_check=dataextract_temu_billdetails.selectbatch(d)
         if st.session_state['reporttype'] == '结算':
             df_check=dataextract_temu_settled.selectbatch(d)
+    if st.session_state['channel'] == 'djy':
+        if st.session_state['reporttype'] == '订单汇总':
+            df_check = dataextract_djy_order.selectbatch(d)
+        if st.session_state['reporttype'] == '费用项汇总':
+            df_check = dataextract_djy_fees.selectbatch(d)
+        if st.session_state['reporttype'] == '平台费汇总':
+            df_check = dataextract_djy_platformfees.selectbatch(d)
+        if st.session_state['reporttype'] == '垫付费汇总':
+            df_check = dataextract_djy_disbursement.selectbatch(d)
+        if st.session_state['reporttype'] == '余额明细':
+            df_check = dataextract_djy_balance.selectbatch(d)
+
     df_delete=st.data_editor(df_check,    column_config={
         "delete": st.column_config.CheckboxColumn(
             "是否删除",
@@ -349,6 +381,9 @@ with tab2:
                 s, m = dataextract_wm_return.deletebatch(batchid)
             if st.session_state['reporttype'] == '结算(运费)':
                 s, m = dataextract_wm_settlement.deletebatch(batchid)
+            if st.session_state['reporttype'] == '平台仓租':
+                s, m = dataextract_wm_platstorerent.deletebatch(batchid)
+
         if st.session_state['channel'] == 'CD':
             if st.session_state['reporttype'] == 'orderextract':
                 s, m = dataextract_cd_orderextract.deletebatch(batchid)
@@ -398,6 +433,19 @@ with tab2:
                 s, m = dataextract_temu_billdetails.deletebatch(batchid)
             if st.session_state['reporttype'] == '结算':
                 s, m = dataextract_temu_settled.deletebatch(batchid)
+        if st.session_state['channel'] == 'djy':
+            if st.session_state['reporttype'] == '订单汇总':
+                s, m = dataextract_djy_order.deletebatch(batchid)
+            if st.session_state['reporttype'] == '费用项汇总':
+                s, m = dataextract_djy_fees.deletebatch(batchid)
+            if st.session_state['reporttype'] == '平台费汇总':
+                s, m = dataextract_djy_platformfees.deletebatch(batchid)
+            if st.session_state['reporttype'] == '垫付费汇总':
+                s, m = dataextract_djy_disbursement.deletebatch(batchid)
+            if st.session_state['reporttype'] == '余额明细':
+                s, m = dataextract_djy_balance.deletebatch(batchid)
+
+
         return s,m
     if not st.session_state['delete'] and len(df_delete.loc[df_delete['delete']==True])!=0:
         st.button('删除',on_click=delete_btn_click)

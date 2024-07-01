@@ -71,7 +71,7 @@ def get_option(channel):
 
         },
         'walmart': {
-            'reporttype': ['订单','广告','订单—jd','付款payment','退货','结算(运费)'],
+            'reporttype': ['订单','广告','订单—jd','付款payment','退货','结算(运费)','平台仓租'],
             'country': ['US'],
             'area': ['US'],
             'store': ['WM-JD','WM-2','WM-5','WM-6','WM-7','WM-Wellynap']
@@ -101,6 +101,12 @@ def get_option(channel):
             'country': ['US'],
             'area': ['US'],
             'store': ['temu-US','temu-NSDHome']
+        },
+        'djy': {
+            'reporttype': ['订单汇总', '费用项汇总', '平台费汇总','垫付费汇总','余额明细'],
+            'country': ['US'],
+            'area': ['US'],
+            'store': ['djy_store']
         }
     }
     return opdict[channel]
