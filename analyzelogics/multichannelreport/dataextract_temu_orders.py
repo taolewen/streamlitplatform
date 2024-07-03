@@ -95,14 +95,54 @@ def dealsinglefile(path,attrjson):
         if len(str(attrjson['week']))==8:
 
             # name=['订单号','订单状态','商品sku','商品件数','货品sku','SKU货号','金额','货品件数','收货人姓名','收货人联系方式']
-            name=['订单号','订单状态','商品sku','商品件数','货品sku','货品件数','货品SKC_ID','货品SPU_ID','SKU货号','金额','收货人姓名','收货人联系方式']
-            df = pd.read_excel(path, usecols='A:L', names=name)
+            # name=['订单号','订单状态','商品sku','商品件数','货品sku','货品件数','货品SKC_ID','货品SPU_ID','SKU货号','金额','收货人姓名','收货人联系方式']
+            # df = pd.read_excel(path, usecols='A:L', names=name)
+            df = pd.read_excel(path)
+            df.rename(columns={
+                '订单号':'订单号',
+                '订单状态': '订单状态',
+                '商品sku': '商品sku',
+                '商品件数': '商品件数',
+                '货品SKU ID': '货品sku',
+                '货品件数': '货品件数',
+                '货品SKC ID': '货品SKC_ID',
+                '货品SPU ID': '货品SPU_ID',
+                'SKU货号': 'SKU货号',
+                '金额': '金额',
+                '金额（RMB)': '金额',
+                '收货人姓名': '收货人姓名',
+                '收货人联系方式': '收货人联系方式',
+                '订单创建时间': '订单创建时间',
+                '要求最晚发货时间': '要求最晚发货时间'
+
+            },inplace=True)
+
             df['要求签收时间']=None
         else:
-            name=['订单号','订单状态','商品sku','商品件数','货品sku','SKU货号','金额','货品件数','收货人姓名','收货人联系方式']
-            df = pd.read_excel(path, usecols='A:J', names=name)
+            # name=['订单号','订单状态','商品sku','商品件数','货品sku','SKU货号','金额','货品件数','收货人姓名','收货人联系方式']
+            # df = pd.read_excel(path, usecols='A:J', names=name)
+            df = pd.read_excel(path)
+            df.rename(columns={
+                '订单号':'订单号',
+                '订单状态': '订单状态',
+                '商品sku': '商品sku',
+                '商品件数': '商品件数',
+                '货品SKU ID': '货品sku',
+                '货品件数': '货品件数',
+                '货品SKC ID': '货品SKC_ID',
+                '货品SPU ID': '货品SPU_ID',
+                'SKU货号': 'SKU货号',
+                '金额': '金额',
+                '金额（RMB)': '金额',
+                '收货人姓名': '收货人姓名',
+                '收货人联系方式': '收货人联系方式',
+                '订单创建时间': '订单创建时间',
+                '要求最晚发货时间': '要求最晚发货时间'
+
+            },inplace=True)
+
             df['要求签收时间']=None
-        df=df[['订单号','订单状态','商品sku','商品件数','货品sku','SKU货号','金额','货品件数','收货人姓名','收货人联系方式']]
+        df=df[['订单号','订单状态','商品sku','商品件数','货品sku','SKU货号','金额','货品件数','收货人姓名','收货人联系方式','订单创建时间','要求最晚发货时间']]
         # df=pd.read_excel(path,sheet_name='soges MF-退款')
         # df.to_csv('fdfd0.csv')
         # print(df)
@@ -119,7 +159,7 @@ def dealsinglefile(path,attrjson):
         #        "batchid"
         # ]]
         df=df[['area','country','store','week','qijian',
-               '订单号','订单状态','商品sku','商品件数','货品sku','SKU货号','金额','货品件数','收货人姓名','收货人联系方式',
+               '订单号','订单状态','商品sku','商品件数','货品sku','SKU货号','金额','货品件数','收货人姓名','收货人联系方式','订单创建时间','要求最晚发货时间',
                "batchid"
         ]]
 

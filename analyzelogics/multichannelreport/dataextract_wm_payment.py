@@ -161,7 +161,16 @@ def dealsinglefile(path,attrjson):
     "Return Reason Code":"Return_Reason_Code",
     "Return Reason Description":"Return_Reason_Description",
     "Fee Withheld Flag":"Fee_Withheld_Flag",
-    "Fulfillment Type":"Fulfillment_Type"},inplace=True)
+    "Fulfillment Type":"Fulfillment_Type",
+    "Fulfillment Details": "Fulfillment_Details",
+    "Commission Incentive Program": "Commission_Incentive_Program",
+    "Commission Saving": "Commission_Saving",
+    "Customer Promo Type": "Customer_Promo_Type",
+    "Total Walmart Funded Savings": "Total_Walmart_Funded_Savings",
+    "Total Walmart Funded Savings Program": "Total_Walmart_Funded_Savings_Program",
+    "Item Condition": "Item_Condition"
+
+                           },inplace=True)
         df['area'] = attrjson['area']
         df['country'] = attrjson['country']
         df['store'] = attrjson['store']
@@ -235,9 +244,15 @@ def dealsinglefile(path,attrjson):
     "Return_Reason_Code",
     "Return_Reason_Description",
     "Fee_Withheld_Flag",
-    "Fulfillment_Type"
-
-        ]]
+    "Fulfillment_Type",
+   "Fulfillment_Details",
+   "Commission_Incentive_Program",
+   "Commission_Saving",
+   "Customer_Promo_Type",
+   "Total_Walmart_Funded_Savings",
+   "Total_Walmart_Funded_Savings_Program",
+   "Item_Condition"
+               ]]
         df['batchid']=batchid
 
         df.to_sql('newchannel_wm_payment', con=engine, if_exists='append', index=False, index_label=False)
