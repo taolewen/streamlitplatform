@@ -71,7 +71,7 @@ if st.session_state["qijian"]:
         st.write(e)
 col1,col2,col3,col4=st.columns(4)
 with col1:
-    st.session_state["channel"]=st.selectbox('渠道',['Ebay', 'CD', 'manomano', 'Wayfair', 'walmart','独立站','shein','overstock','temu'])
+    st.session_state["channel"]=st.selectbox('渠道',['Ebay', 'CD', 'manomano', 'Wayfair', 'walmart','独立站','shein','overstock','temu','djy'])
     st.session_state["store"]=st.selectbox('store',get_option(st.session_state["channel"])['store'])
 
 with col2:
