@@ -118,7 +118,7 @@ def dealsinglefile(path,attrjson={}):
 
         ]]
         df['batchid']=batchid
-
+        df=df.loc[~pd.isna(df['Amazon_Seller_Account'])]
         df.to_sql('linggou_compensation_list', con=engine, if_exists='append', index=False, index_label=False)
         # updatebatch(attrjson,batchid,path)
 
