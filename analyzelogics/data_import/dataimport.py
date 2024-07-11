@@ -76,18 +76,11 @@ def getuid():
 def dealsinglefile(path,attrjson={}):
     try:
         batchid=getuid()
-        names=['Amazon_Seller_Account',
-                'Amazon_Store_Name',
-                'Amazon_Ticket_ID',
-                'SKU',
-                'Reimbursement_ID',
-                'Approval_Date',
-                'Amount',
-                'Currency',
-                'Type',
-                'Invoice_Number',
-                'Marketplace']
-        df=pd.read_csv(path,names=names,encoding='cp1252',skiprows=1)
+
+        col = ['Amazon Seller Account','Amazon Store Name', 'Amazon Ticket ID','SKU', 'Reimbursement ID', 'Approval Date', 'Amount', 'Currency','Type','Invoice Number','Marketplace']
+        # col='A:K'
+        df=pd.read_csv(path,usecols=col,encoding='cp1252')
+        # df = pd.read_excel(path, sheet_name='账务明细列表', usecols='A:E', names=name)
 
         # df['area'] = attrjson['area']
         # df['country'] = attrjson['country']
@@ -95,6 +88,22 @@ def dealsinglefile(path,attrjson={}):
         # df['week'] = attrjson['week']
         # df['qijian'] = attrjson['qijian']
         # df['Ad_Spend'].fillna('0',inplace=True)
+
+        df.rename(columns={
+            'Amazon Seller Account':'Amazon_Seller_Account',
+            'Amazon Store Name':'Amazon_Store_Name',
+            'Amazon Ticket ID': 'Amazon_Ticket_ID',
+            'SKU': 'SKU',
+            'Reimbursement ID': 'Reimbursement_ID',
+            'Approval Date': 'Approval_Date',
+            'Amount': 'Amount',
+            'Currency': 'Currency',
+            'Type': 'Type',
+            'Invoice Number': 'Invoice_Number',
+            'Marketplace': 'Marketplace',
+
+        },inplace=True)
+
         df=df[['Amazon_Seller_Account',
                 'Amazon_Store_Name',
                 'Amazon_Ticket_ID',
