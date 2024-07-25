@@ -93,9 +93,25 @@ def dealsinglefile(path,attrjson):
         batchid=getuid()
         name=['业务单号', '对应订单号', '账单类型', '收支类型', '对应账单编号', '生成日期', '发起结算日期', '结算完成日期', '商品数量',
                '商品总额', '优惠券金额', '活动优惠金额', '佣金', '履约服务费', '备货作业费','退货处理费', '服务费', '税费', '应收金额', '结算金额', '消费税']
+        name=['业务单号', '对应订单号', '账单类型', '收支类型', '对应账单编号', '生成日期', '发起结算日期', '结算完成日期', '商品数量',
+               '退货处理费','应收金额', '结算金额']
+        # 业务单号
+        # 对应订单号
+        # 账单类型
+        # 收支类型
+        # 对应账单编号
+        # 生成日期
+        # 发起结算日期
+        # 结算完成日期
+        # 商品数量
+        # 费用
+        # 应收金额
+        # 结算金额
 
         # df=pd.read_excel(path,sheet_name='soges MF-退款')
-        df = pd.read_excel(path, header=1,usecols='A:U',names = name)
+        # df = pd.read_excel(path, header=1,usecols='A:U',names = name)
+        df = pd.read_excel(path, header=1,usecols='A:L',names = name)
+
         # df.to_csv('fdfd0.csv')
         # print(df)
         df['area'] = attrjson['area']
@@ -106,12 +122,16 @@ def dealsinglefile(path,attrjson):
         df['batchid']=batchid
         # df.to_csv('fdfd.csv')
 
+        # df=df[['area','country','store','week','qijian',
+        #        '业务单号', '对应订单号', '账单类型', '收支类型', '对应账单编号', '生成日期', '发起结算日期', '结算完成日期', '商品数量',
+        #        '商品总额', '优惠券金额', '活动优惠金额', '佣金', '履约服务费', '备货作业费','退货处理费', '服务费', '税费', '应收金额', '结算金额', '消费税',
+        #         "batchid"
+        # ]]
         df=df[['area','country','store','week','qijian',
                '业务单号', '对应订单号', '账单类型', '收支类型', '对应账单编号', '生成日期', '发起结算日期', '结算完成日期', '商品数量',
-               '商品总额', '优惠券金额', '活动优惠金额', '佣金', '履约服务费', '备货作业费','退货处理费', '服务费', '税费', '应收金额', '结算金额', '消费税',
+               '退货处理费','应收金额', '结算金额',
                 "batchid"
         ]]
-
         df.to_sql('newchannel_shein_payment', con=engine, if_exists='append', index=False, index_label=False)
         updatebatch(attrjson,batchid,path)
 
